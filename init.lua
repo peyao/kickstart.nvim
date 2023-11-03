@@ -150,12 +150,29 @@ require('lazy').setup({
     },
   },
 
-  {
-    -- Theme inspired by Atom
-    'navarasu/onedark.nvim',
+  -- Themes
+  --
+  -- { -- Theme inspired by Atom
+  --   'navarasu/onedark.nvim',
+  --   priority = 1000,
+  --   config = function()
+  --     vim.cmd.colorscheme 'onedark'
+  --   end,
+  -- },
+
+  { 'projekt0n/github-nvim-theme' }, -- custom theme
+  { 'folke/tokyonight.nvim', -- custom theme
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme 'onedark'
+      -- light:
+      -- vim.cmd.colorscheme 'tokyonight-day'
+      -- dark:
+      vim.cmd.colorscheme 'tokyonight-moon'
+      -- vim.cmd.colorscheme 'github_dark'
+
+      -- not so good contrast:
+      -- vim.cmd.colorscheme 'tokyonight-moon'
+      -- vim.cmd.colorscheme 'tokyonight-night'
     end,
   },
 
@@ -167,20 +184,21 @@ require('lazy').setup({
       options = {
         icons_enabled = false,
         theme = 'onedark',
+        -- theme = 'auto',
         component_separators = '|',
         section_separators = '',
       },
     },
   },
 
-  {
-    -- Add indentation guides even on blank lines
-    'lukas-reineke/indent-blankline.nvim',
-    -- Enable `lukas-reineke/indent-blankline.nvim`
-    -- See `:help ibl`
-    main = 'ibl',
-    opts = {},
-  },
+  -- {
+  --   -- Add indentation guides even on blank lines
+  --   'lukas-reineke/indent-blankline.nvim',
+  --   -- Enable `lukas-reineke/indent-blankline.nvim`
+  --   -- See `:help ibl`
+  --   main = 'ibl',
+  --   opts = {},
+  -- },
 
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim', opts = {} },
@@ -228,11 +246,60 @@ require('lazy').setup({
   --
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
   -- { import = 'custom.plugins' },
+
+  -- peyao :
+  { 'dstein64/nvim-scrollview' }, -- adds scrollbar to the right
+  { 'terrortylor/nvim-comment' }, -- add commenter
+  { 'nvim-tree/nvim-tree.lua' }, -- add file directory explorer
+  { 'romgrk/barbar.nvim',
+    dependencies = {
+      'lewis6991/gitsigns.nvim',
+      'nvim-tree/nvim-web-devicons'
+    },
+    opts = {
+      -- lazy.nvim can automatically call setup for you. just put your options here:
+      insert_at_start = true,
+      animation = true,
+      icons = {
+        pinned = {button = '📌', filename = true},
+        button = '✖',
+      }
+    },
+  },
+  { 'karb94/neoscroll.nvim' },
+  -- { 'rmagatti/auto-session',
+  --   config = function()
+  --     require('auto-session').setup {}
+  --   end
+  -- },
+  {
+    'tzachar/local-highlight.nvim',
+    config = function()
+      require('local-highlight').setup({
+        file_types = {'javascript', 'typescript'},
+        hlgroup = 'Search',
+        cw_hlgroup = nil,
+      })
+    end
+  },
+  { 'windwp/nvim-autopairs',
+    config = function()
+      require('nvim-autopairs').setup {}
+    end
+  }, -- open/close parens/brackets together
+  { 'windwp/nvim-ts-autotag' } -- open/close html/jsx tags together
 }, {})
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
+
+-- peyao : own configs
+vim.o.tabstop = 4
+vim.o.softtabstop = 4
+vim.o.shiftwidth = 4
+vim.o.cursorline = true
+vim.o.autoread = true
 
 -- Set highlight on search
 vim.o.hlsearch = false
@@ -302,6 +369,7 @@ require('telescope').setup {
         ['<C-d>'] = false,
       },
     },
+    file_ignore_patterns = { 'node_modules', 'yarn.lock', 'package-lock.json' }
   },
 }
 
@@ -310,12 +378,12 @@ pcall(require('telescope').load_extension, 'fzf')
 
 -- See `:help telescope.builtin`
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
-vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
+vim.keymap.set('n', '<leader><space>', require('telescope.builtin').resume, { desc = '[ ] Resume Telescope search' })
 vim.keymap.set('n', '<leader>/', function()
   -- You can pass additional configuration to telescope to change theme, layout, etc.
   require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-    winblend = 10,
-    previewer = false,
+    winblend = 0,
+    previewer = true,
   })
 end, { desc = '[/] Fuzzily search in current buffer' })
 
@@ -393,6 +461,9 @@ vim.defer_fn(function()
         },
       },
     },
+    autotag = {
+      enable = true
+    }
   }
 end, 0)
 
@@ -441,6 +512,10 @@ local on_attach = function(_, bufnr)
     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
   end, '[W]orkspace [L]ist Folders')
 
+  -- git keybinds
+  nmap('<leader>co', '<Cmd>GBrowse<CR>', '[C]ode [O]pen in GitHub')
+  nmap('<leader>cd', '<Cmd>Gvdiffsplit<CR>', '[C]ode Git [D]iff in vsplit')
+
   -- Create a command `:Format` local to the LSP buffer
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
     vim.lsp.buf.format()
@@ -476,8 +551,10 @@ local servers = {
   -- gopls = {},
   -- pyright = {},
   -- rust_analyzer = {},
-  -- tsserver = {},
-  -- html = { filetypes = { 'html', 'twig', 'hbs'} },
+  tsserver = {
+    filetypes = { 'javascript', 'typescript', 'typescriptreact', 'typescript.tsx' }
+  },
+  html = { filetypes = { 'html', 'twig', 'hbs'} },
 
   lua_ls = {
     Lua = {
@@ -559,6 +636,71 @@ cmp.setup {
     { name = 'luasnip' },
   },
 }
+
+-- nvim-tree empty setup using defaults
+require('nvim-tree').setup({
+  view = {
+    width = 39,
+  },
+  update_focused_file = {
+    enable = true,
+    update_root = false,
+    ignore_list = {},
+  },
+  ui = {
+    confirm = {
+      remove = true, -- user confirmation when using removing ("d") on an item
+    }
+  }
+})
+vim.keymap.set('n', '<leader>t', '<Cmd>NvimTreeToggle<cr>', { desc = 'File Tree [T]oggle', silent = true });
+
+-- barbar.nvim keymaps:
+local bufferMap = vim.api.nvim_set_keymap
+local bufferOpts = { noremap = true, silent = true }
+-- Move to previous/next
+bufferMap('n', '<A-,>', '<Cmd>BufferPrevious<CR>', bufferOpts)
+bufferMap('n', '<A-.>', '<Cmd>BufferNext<CR>', bufferOpts)
+bufferMap('n', '<A-a>', '<Cmd>BufferMovePrevious<CR>', bufferOpts)
+bufferMap('n', '<A-d>', '<Cmd>BufferMoveNext<CR>', bufferOpts)
+bufferMap('n', '<A-1>', '<Cmd>BufferGoto 1<CR>', bufferOpts)
+bufferMap('n', '<A-2>', '<Cmd>BufferGoto 2<CR>', bufferOpts)
+bufferMap('n', '<A-3>', '<Cmd>BufferGoto 3<CR>', bufferOpts)
+bufferMap('n', '<A-4>', '<Cmd>BufferGoto 4<CR>', bufferOpts)
+bufferMap('n', '<A-5>', '<Cmd>BufferGoto 5<CR>', bufferOpts)
+bufferMap('n', '<A-6>', '<Cmd>BufferGoto 6<CR>', bufferOpts)
+bufferMap('n', '<A-7>', '<Cmd>BufferGoto 7<CR>', bufferOpts)
+bufferMap('n', '<A-8>', '<Cmd>BufferGoto 8<CR>', bufferOpts)
+bufferMap('n', '<A-9>', '<Cmd>BufferGoto 9<CR>', bufferOpts)
+bufferMap('n', '<A-0>', '<Cmd>BufferGoto 10<CR>', bufferOpts)
+bufferMap('n', '<A-p>', '<Cmd>BufferPin<CR>', bufferOpts)
+bufferMap('n', '<A-w>', '<Cmd>BufferClose<CR>', bufferOpts)
+bufferMap('n', '<A-c>', '<Cmd>BufferCloseAllButCurrent<CR>', bufferOpts)
+-- Sort automatically by...
+bufferMap('n', '<Space>bd', '<Cmd>BufferOrderByDirectory<CR>', { desc = '[B]uffers sort by [D]irectory', silent = true })
+bufferMap('n', '<Space>bl', '<Cmd>BufferOrderByLanguage<CR>', { desc = '[B]uffers sort by [L]anguage', silent = true })
+-- bufferMap('n', '<Space>bw', '<Cmd>BufferOrderByWindowNumber<CR>', { desc = '[B]uffers sort by [W]indow #', silent = true })
+-- bufferMap('n', '<Space>bb', '<Cmd>BufferOrderByBufferNumber<CR>', bufferOpts)
+
+-- neoscroll setup
+require('neoscroll').setup({
+    -- All these keys will be mapped to their corresponding default scrolling animation
+    mappings = {'<C-u>', '<C-d>', '<C-b>', '<C-f>',
+                '<C-y>', '<C-e>', 'zt', 'zz', 'zb'},
+    hide_cursor = true,          -- Hide cursor while scrolling
+    stop_eof = true,             -- Stop at <EOF> when scrolling downwards
+    respect_scrolloff = false,   -- Stop scrolling when the cursor reaches the scrolloff margin of the file
+    cursor_scrolls_alone = true, -- The cursor will keep on scrolling even if the window cannot scroll further
+    easing_function = nil,       -- Default easing function
+    pre_hook = nil,              -- Function to run before the scrolling animation starts
+    post_hook = nil,             -- Function to run after the scrolling animation ends
+    performance_mode = false,    -- Disable "Performance Mode" on all buffers.
+})
+
+-- The line beneath this is called `modeline`. See `:help modeline`
+-- vim: ts=2 sts=2 sw=2 et
+
+vim.api.nvim_exec('language en_US', true)
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

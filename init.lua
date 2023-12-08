@@ -203,9 +203,9 @@ require('lazy').setup({
     priority = 1000,
     config = function()
       -- light:
-      -- vim.cmd.colorscheme 'tokyonight-day'
+      vim.cmd.colorscheme 'tokyonight-day'
       -- dark:
-      vim.cmd.colorscheme 'tokyonight-moon'
+      -- vim.cmd.colorscheme 'tokyonight-moon'
       -- vim.cmd.colorscheme 'github_dark'
 
       -- not so good contrast:
@@ -221,8 +221,8 @@ require('lazy').setup({
     opts = {
       options = {
         icons_enabled = false,
-        theme = 'onedark',
-        -- theme = 'auto',
+        -- theme = 'onedark',
+        theme = 'auto',
         component_separators = '|',
         section_separators = '',
       },
@@ -305,11 +305,12 @@ require('lazy').setup({
     },
   },
   { 'karb94/neoscroll.nvim' },
-  -- { 'rmagatti/auto-session',
-  --   config = function()
-  --     require('auto-session').setup {}
-  --   end
-  -- },
+  { 'rmagatti/auto-session',
+    config = function()
+      require('auto-session').setup {}
+    end
+  },
+  { 'rmagatti/session-lens' }, -- no shortcut key bound yet, launch with :SearchSession
   {
     'tzachar/local-highlight.nvim',
     config = function()

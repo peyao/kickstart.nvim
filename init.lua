@@ -200,20 +200,34 @@ require('lazy').setup({
   -- },
 
   { 'projekt0n/github-nvim-theme' }, -- custom theme
-  { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
+  { 'NTBBloodbath/doom-one.nvim', -- custom theme
+    config = function()
+      vim.g.doom_one_plugin_barbar = true
+      vim.g.doom_one_plugin_nvim_tree = true
+      vim.g.doom_one_plugin_telescope = true
+      vim.g.doom_one_plugin_indent_blankline = true
+    end
+  },
+  { 'catppuccin/nvim', -- custom theme
+    name = 'catppuccin',
+    priority = 1000,
+    opts = {
+      integrations = {
+        barbar = true,
+        fidget = true,
+        indent_blankline = { enabled = true }
+      }
+    }
+  },
   { 'folke/tokyonight.nvim', -- custom theme
     priority = 1000,
     config = function()
       -- light:
-      vim.cmd.colorscheme 'tokyonight-day'
+      -- vim.cmd.colorscheme 'tokyonight-day'
       -- dark:
       -- vim.cmd.colorscheme 'tokyonight-moon'
-      -- vim.cmd.colorscheme 'github_dark'
-      -- vim.cmd.colorscheme 'catppuccin'
-
-      -- not so good contrast:
-      -- vim.cmd.colorscheme 'tokyonight-moon'
-      -- vim.cmd.colorscheme 'tokyonight-night'
+      -- vim.cmd.colorscheme 'doom-one'
+      vim.cmd.colorscheme 'catppuccin-macchiato'
     end,
   },
 
@@ -223,7 +237,7 @@ require('lazy').setup({
     -- See `:help lualine.txt`
     opts = {
       options = {
-        icons_enabled = false,
+        icons_enabled = true,
         -- theme = 'onedark',
         theme = 'auto',
         component_separators = '|',
@@ -232,14 +246,14 @@ require('lazy').setup({
     },
   },
 
-  -- {
-  --   -- Add indentation guides even on blank lines
-  --   'lukas-reineke/indent-blankline.nvim',
-  --   -- Enable `lukas-reineke/indent-blankline.nvim`
-  --   -- See `:help ibl`
-  --   main = 'ibl',
-  --   opts = {},
-  -- },
+  {
+    -- Add indentation guides even on blank lines
+    'lukas-reineke/indent-blankline.nvim',
+    -- Enable `lukas-reineke/indent-blankline.nvim`
+    -- See `:help ibl`
+    main = 'ibl',
+    opts = {},
+  },
 
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim', opts = {} },
@@ -304,13 +318,27 @@ require('lazy').setup({
       icons = {
         pinned = {button = '📌', filename = true},
         button = '✖',
-      }
+      },
+      sidebar_filetypes = { NvimTree = true },
+      highlight_visible = true,
+      -- hide = { inactive = true } -- hide inactive buffers
     },
   },
   { 'karb94/neoscroll.nvim' },
   { 'rmagatti/auto-session',
     config = function()
-      require('auto-session').setup {}
+      -- https://www.reddit.com/r/neovim/comments/15bfz5f/how_to_open_nvim_tree_after_restoring_a_session/
+      local function change_nvim_tree_dir()
+        local nvim_tree = require('nvim-tree')
+        nvim_tree.change_dir(vim.fn.getcwd())
+      end
+
+      require('auto-session').setup {
+        log_level = 'error',
+        auto_session_suppress_dirs = nil,
+        post_restore_cmds = { change_nvim_tree_dir, "NvimTreeOpen" },
+        pre_save_cmds = { "NvimTreeClose" }
+      }
     end
   },
   { 'rmagatti/session-lens' }, -- no shortcut key bound yet, launch with :SearchSession

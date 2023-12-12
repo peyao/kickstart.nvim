@@ -200,6 +200,7 @@ require('lazy').setup({
   -- },
 
   { 'projekt0n/github-nvim-theme' }, -- custom theme
+  { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
   { 'folke/tokyonight.nvim', -- custom theme
     priority = 1000,
     config = function()
@@ -208,6 +209,7 @@ require('lazy').setup({
       -- dark:
       -- vim.cmd.colorscheme 'tokyonight-moon'
       -- vim.cmd.colorscheme 'github_dark'
+      -- vim.cmd.colorscheme 'catppuccin'
 
       -- not so good contrast:
       -- vim.cmd.colorscheme 'tokyonight-moon'
@@ -417,6 +419,11 @@ require('telescope').setup {
     },
     file_ignore_patterns = { 'node_modules', 'yarn.lock', 'package-lock.json' }
   },
+  pickers = {
+    colorscheme = {
+      enable_preview = true,
+    }
+  }
 }
 
 -- Enable telescope fzf native, if installed
@@ -463,6 +470,7 @@ vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc =
 vim.keymap.set('n', '<leader><space>', require('telescope.builtin').resume, { desc = '[ ] Resume Telescope search' })
 vim.keymap.set('n', '<leader>/', function()
   -- You can pass additional configuration to telescope to change theme, layout, etc.
+  -- https://github.com/nvim-telescope/telescope.nvim#layout-display
   require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
     winblend = 0,
     previewer = true,
@@ -485,6 +493,11 @@ vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc
 vim.keymap.set('n', '<leader>sG', ':LiveGrepGitRoot<cr>', { desc = '[S]earch by [G]rep on Git Root' })
 vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
 vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
+vim.keymap.set('n', '<leader>sc', function()
+  -- layout options: get_ivy, get_dropdown, get_cursor
+  -- previewer seems required for previewing colorscheme changes live
+  require('telescope.builtin').colorscheme(require('telescope.themes').get_ivy { previewer = true })
+end, { desc = '[S]earch [C]olorschemes' })
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`

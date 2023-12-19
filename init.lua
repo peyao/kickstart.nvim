@@ -803,8 +803,10 @@ local bufferOpts = { noremap = true, silent = true }
 -- Move to previous/next
 bufferMap('n', '<A-;>', '<Cmd>BufferPrevious<CR>', bufferOpts)
 bufferMap('n', '<A-\'>', '<Cmd>BufferNext<CR>', bufferOpts)
-bufferMap('n', '<A-a>', '<Cmd>BufferMovePrevious<CR>', bufferOpts)
-bufferMap('n', '<A-d>', '<Cmd>BufferMoveNext<CR>', bufferOpts)
+bufferMap('n', '<A-a>', '<Cmd>BufferPrevious<CR>', bufferOpts)
+bufferMap('n', '<A-d>', '<Cmd>BufferNext<CR>', bufferOpts)
+bufferMap('n', '<A-q>', '<Cmd>BufferMovePrevious<CR>', bufferOpts)
+bufferMap('n', '<A-e>', '<Cmd>BufferMoveNext<CR>', bufferOpts)
 bufferMap('n', '<A-1>', '<Cmd>BufferGoto 1<CR>', bufferOpts)
 bufferMap('n', '<A-2>', '<Cmd>BufferGoto 2<CR>', bufferOpts)
 bufferMap('n', '<A-3>', '<Cmd>BufferGoto 3<CR>', bufferOpts)

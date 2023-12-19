@@ -199,15 +199,16 @@ require('lazy').setup({
   --   end,
   -- },
 
-  { 'projekt0n/github-nvim-theme' }, -- custom theme
-  { 'NTBBloodbath/doom-one.nvim', -- custom theme
-    config = function()
-      vim.g.doom_one_plugin_barbar = true
-      vim.g.doom_one_plugin_nvim_tree = true
-      vim.g.doom_one_plugin_telescope = true
-      vim.g.doom_one_plugin_indent_blankline = true
-    end
-  },
+  -- { 'projekt0n/github-nvim-theme' }, -- custom theme
+  -- { 'NTBBloodbath/doom-one.nvim', -- custom theme
+  --   config = function()
+  --     vim.g.doom_one_plugin_barbar = true
+  --     vim.g.doom_one_plugin_nvim_tree = true
+  --     vim.g.doom_one_plugin_telescope = true
+  --     vim.g.doom_one_plugin_indent_blankline = true
+  --     vim.cmd.colorscheme 'doom-one'
+  --   end
+  -- },
   { 'catppuccin/nvim', -- custom theme
     name = 'catppuccin',
     priority = 1000,
@@ -224,10 +225,10 @@ require('lazy').setup({
     config = function()
       -- light:
       -- vim.cmd.colorscheme 'tokyonight-day'
+      vim.cmd.colorscheme 'catppuccin-latte'
       -- dark:
       -- vim.cmd.colorscheme 'tokyonight-moon'
-      -- vim.cmd.colorscheme 'doom-one'
-      vim.cmd.colorscheme 'catppuccin-macchiato'
+      -- vim.cmd.colorscheme 'catppuccin-macchiato'
     end,
   },
 
@@ -238,8 +239,8 @@ require('lazy').setup({
     opts = {
       options = {
         icons_enabled = true,
-        -- theme = 'onedark',
-        theme = 'auto',
+        -- theme = 'auto',
+        theme = 'dracula',
         component_separators = '|',
         section_separators = '',
       },
@@ -370,6 +371,7 @@ vim.o.softtabstop = 4
 vim.o.shiftwidth = 4
 vim.o.cursorline = true
 vim.o.autoread = true
+vim.wo.wrap = false
 
 -- Set highlight on search
 vim.o.hlsearch = false
@@ -658,6 +660,7 @@ require('which-key').register {
   ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
   ['<leader>t'] = { name = '[T]oggle', _ = 'which_key_ignore' },
   ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
+  ['<leader>b'] = { name = '[B]uffers', _ = 'which_key_ignore' },
 }
 -- register which-key VISUAL mode
 -- required for visual <leader>hs (hunk stage) to work

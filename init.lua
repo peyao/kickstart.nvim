@@ -225,10 +225,10 @@ require('lazy').setup({
     config = function()
       -- light:
       -- vim.cmd.colorscheme 'tokyonight-day'
-      vim.cmd.colorscheme 'catppuccin-latte'
+      -- vim.cmd.colorscheme 'catppuccin-latte'
       -- dark:
       -- vim.cmd.colorscheme 'tokyonight-moon'
-      -- vim.cmd.colorscheme 'catppuccin-macchiato'
+      vim.cmd.colorscheme 'catppuccin-mocha'
     end,
   },
 
@@ -371,7 +371,7 @@ vim.o.softtabstop = 4
 vim.o.shiftwidth = 4
 vim.o.cursorline = true
 vim.o.autoread = true
-vim.wo.wrap = false
+-- vim.wo.wrap = false
 
 -- Set highlight on search
 vim.o.hlsearch = false

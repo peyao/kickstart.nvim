@@ -179,9 +179,9 @@ require('lazy').setup({
           gs.diffthis '~'
         end, { desc = 'git diff against last commit' })
 
-        -- Toggles
-        map('n', '<leader>tb', gs.toggle_current_line_blame, { desc = 'toggle git blame line' })
-        map('n', '<leader>td', gs.toggle_deleted, { desc = 'toggle git show deleted' })
+        -- Git toggles
+        map('n', '<leader>gb', gs.toggle_current_line_blame, { desc = 'toggle git blame line' })
+        map('n', '<leader>gd', gs.toggle_deleted, { desc = 'toggle git show deleted' })
 
         -- Text object
         map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', { desc = 'select git hunk' })
@@ -228,7 +228,7 @@ require('lazy').setup({
       -- vim.cmd.colorscheme 'catppuccin-latte'
       -- dark:
       -- vim.cmd.colorscheme 'tokyonight-moon'
-      vim.cmd.colorscheme 'catppuccin-mocha'
+      vim.cmd.colorscheme 'catppuccin-macchiato'
     end,
   },
 
@@ -251,7 +251,11 @@ require('lazy').setup({
             file_status = true,  -- displays file status (readonly status, modified status)
             path = 1 -- 0 = just filename, 1 = relative path, 2 = absolute path
           }
-        }
+        },
+        lualine_x = {'filetype'} -- default has more, simplifying
+      },
+      inactive_sections = {
+        lualine_c = { { 'filename', file_status = true, path = 1 } }
       }
     },
   },
@@ -667,7 +671,7 @@ require('which-key').register {
   ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
   ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
   ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
-  ['<leader>t'] = { name = '[T]oggle', _ = 'which_key_ignore' },
+  ['<leader>t'] = { name = 'nvim-[t]ree', _ = 'which_key_ignore' },
   ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
   ['<leader>b'] = { name = '[B]uffers', _ = 'which_key_ignore' },
 }

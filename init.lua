@@ -454,6 +454,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- See `:help telescope` and `:help telescope.setup()`
 require('telescope').setup {
   defaults = {
+    winblend = 20,
     mappings = {
       i = {
         ['<C-u>'] = false,
@@ -501,7 +502,7 @@ local function live_grep_git_root()
   local git_root = find_git_root()
   if git_root then
     require('telescope.builtin').live_grep {
-      search_dirs = { git_root },
+      search_dirs = { git_root }
     }
   end
 end
@@ -515,7 +516,6 @@ vim.keymap.set('n', '<leader>/', function()
   -- You can pass additional configuration to telescope to change theme, layout, etc.
   -- https://github.com/nvim-telescope/telescope.nvim#layout-display
   require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-    winblend = 0,
     previewer = true,
   })
 end, { desc = '[/] Fuzzily search in current buffer' })
@@ -523,7 +523,7 @@ end, { desc = '[/] Fuzzily search in current buffer' })
 local function telescope_live_grep_open_files()
   require('telescope.builtin').live_grep {
     grep_open_files = true,
-    prompt_title = 'Live Grep in Open Files',
+    prompt_title = 'Live Grep in Open Files'
   }
 end
 vim.keymap.set('n', '<leader>s/', telescope_live_grep_open_files, { desc = '[S]earch [/] in Open Files' })

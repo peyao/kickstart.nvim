@@ -371,7 +371,17 @@ require('lazy').setup({
       require('nvim-autopairs').setup {}
     end
   }, -- open/close parens/brackets together
-  { 'windwp/nvim-ts-autotag' } -- open/close html/jsx tags together
+  { 'windwp/nvim-ts-autotag' }, -- open/close html/jsx tags together
+  {
+    "ThePrimeagen/refactoring.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
+    config = function()
+      require("refactoring").setup()
+    end,
+  },
 }, {})
 
 -- [[ Setting options ]]
@@ -537,6 +547,7 @@ vim.keymap.set('n', '<leader>sc', function()
   -- previewer seems required for previewing colorscheme changes live
   require('telescope.builtin').colorscheme(require('telescope.themes').get_ivy { previewer = true })
 end, { desc = '[S]earch [C]olorschemes' })
+vim.keymap.set({'x', 'n'}, '<leader>l', function() require('refactoring').debug.print_var() end, { desc = 'Console [L]og variable' })
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`

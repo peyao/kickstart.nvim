@@ -384,6 +384,7 @@ vim.o.softtabstop = 4
 vim.o.shiftwidth = 4
 vim.o.cursorline = true
 vim.o.autoread = true
+vim.o.scrolloff = 5
 -- vim.wo.wrap = false
 
 -- Set highlight on search
@@ -455,12 +456,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 require('telescope').setup {
   defaults = {
     winblend = 20,
-    mappings = {
-      i = {
-        ['<C-u>'] = false,
-        ['<C-d>'] = false,
-      },
-    },
+    mappings = {},
     file_ignore_patterns = { 'node_modules', 'yarn.lock', 'package-lock.json' }
   },
   pickers = {

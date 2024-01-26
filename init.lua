@@ -223,12 +223,26 @@ require('lazy').setup({
   { 'folke/tokyonight.nvim', -- custom theme
     priority = 1000,
     config = function()
+      require('tokyonight').setup({
+        dim_inactive = true,
+        lualine_bold = true,
+        on_highlights = function(hl, c)
+          -- barbar colors
+          hl.BufferCurrent = { bg = c.teal, fg = c.black }
+          hl.BufferCurrentMod = { bg = c.yellow, fg = c.black }
+          hl.BufferVisible = { fg = c.teal }
+          -- nvim-tree colors
+          hl.NvimTreeNormal = { fg = c.none }
+          hl.NvimTreeNormalNC = { fg = c.none }
+        end
+      })
       -- light:
       -- vim.cmd.colorscheme 'tokyonight-day'
       -- vim.cmd.colorscheme 'catppuccin-latte'
       -- dark:
-      -- vim.cmd.colorscheme 'tokyonight-moon'
-      vim.cmd.colorscheme 'catppuccin-macchiato'
+      vim.cmd.colorscheme 'tokyonight-moon'
+      -- vim.cmd.colorscheme 'catppuccin-macchiato'
+      -- vim.cmd.colorscheme 'catppuccin-mocha'
     end,
   },
 
@@ -317,7 +331,15 @@ require('lazy').setup({
   -- { import = 'custom.plugins' },
 
   -- peyao :
-  { 'dstein64/nvim-scrollview' }, -- adds scrollbar to the right
+  { 'dstein64/nvim-scrollview',
+    config = function()
+      require('scrollview').setup({
+        excluded_filetypes = { 'NvimTree' },
+        winblend = 50,
+        signs_on_startup = { 'all' }
+      })
+    end
+  }, -- adds scrollbar to the right
   { 'terrortylor/nvim-comment' }, -- add commenter
   { 'nvim-tree/nvim-tree.lua' }, -- add file directory explorer
   { 'romgrk/barbar.nvim',
@@ -379,7 +401,14 @@ require('lazy').setup({
       "nvim-treesitter/nvim-treesitter",
     },
     config = function()
-      require("refactoring").setup()
+      local jsTemplate = 'console.log(">>> %s", %s);'
+      require("refactoring").setup({
+        show_success_message = true,
+        print_var_statements = {
+          javascript = { jsTemplate },
+          typescript = { jsTemplate },
+        }
+      })
     end,
   },
 }, {})
@@ -547,7 +576,8 @@ vim.keymap.set('n', '<leader>sc', function()
   -- previewer seems required for previewing colorscheme changes live
   require('telescope.builtin').colorscheme(require('telescope.themes').get_ivy { previewer = true })
 end, { desc = '[S]earch [C]olorschemes' })
-vim.keymap.set({'x', 'n'}, '<leader>l', function() require('refactoring').debug.print_var() end, { desc = 'Console [L]og variable' })
+vim.keymap.set({'x', 'n'}, '<leader>ll', require('refactoring').debug.print_var, { desc = 'Console [L]og variable' })
+vim.keymap.set('n', '<leader>lc', require('refactoring').debug.cleanup, { desc = 'Console log [C]leanup' })
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
@@ -686,6 +716,7 @@ require('which-key').register {
   ['<leader>t'] = { name = 'nvim-[t]ree', _ = 'which_key_ignore' },
   ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
   ['<leader>b'] = { name = '[B]uffers', _ = 'which_key_ignore' },
+  ['<leader>l'] = { name = 'Console [L]og', _ = 'which_key_ignore' },
 }
 -- register which-key VISUAL mode
 -- required for visual <leader>hs (hunk stage) to work

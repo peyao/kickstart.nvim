@@ -172,7 +172,7 @@ require('lazy').setup({
         map('n', '<leader>hR', gs.reset_buffer, { desc = 'git Reset buffer' })
         map('n', '<leader>hp', gs.preview_hunk, { desc = 'preview git hunk' })
         map('n', '<leader>hb', function()
-          gs.blame_line { full = false }
+          gs.blame_line { full = true }
         end, { desc = 'git blame line' })
         map('n', '<leader>hd', gs.diffthis, { desc = 'git diff against index' })
         map('n', '<leader>hD', function()
@@ -418,9 +418,10 @@ require('lazy').setup({
 -- NOTE: You can change these options as you wish!
 
 -- peyao : own configs
-vim.o.tabstop = 4
-vim.o.softtabstop = 4
-vim.o.shiftwidth = 4
+vim.o.tabstop = 2
+vim.o.softtabstop = 2
+vim.o.shiftwidth = 2
+vim.o.expandtab = true
 vim.o.cursorline = true
 vim.o.autoread = true
 vim.o.scrolloff = 5
@@ -585,7 +586,7 @@ vim.keymap.set('n', '<leader>lc', require('refactoring').debug.cleanup, { desc =
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
-    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash' },
+    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust',  'vimdoc', 'vim', 'bash', 'html', 'css', 'scss', 'tsx', 'javascript', 'typescript', 'json' },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
     auto_install = false,
@@ -861,6 +862,8 @@ bufferMap('n', '<A-;>', '<Cmd>BufferPrevious<CR>', bufferOpts)
 bufferMap('n', '<A-\'>', '<Cmd>BufferNext<CR>', bufferOpts)
 bufferMap('n', '<A-a>', '<Cmd>BufferPrevious<CR>', bufferOpts)
 bufferMap('n', '<A-d>', '<Cmd>BufferNext<CR>', bufferOpts)
+bufferMap('n', '<A-Left>', '<Cmd>BufferPrevious<CR>', bufferOpts)
+bufferMap('n', '<A-Right>', '<Cmd>BufferNext<CR>', bufferOpts)
 bufferMap('n', '<A-q>', '<Cmd>BufferMovePrevious<CR>', bufferOpts)
 bufferMap('n', '<A-e>', '<Cmd>BufferMoveNext<CR>', bufferOpts)
 bufferMap('n', '<A-1>', '<Cmd>BufferGoto 1<CR>', bufferOpts)

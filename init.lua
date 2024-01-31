@@ -190,16 +190,6 @@ require('lazy').setup({
   },
 
   -- Themes
-  --
-  -- { -- Theme inspired by Atom
-  --   'navarasu/onedark.nvim',
-  --   priority = 1000,
-  --   config = function()
-  --     vim.cmd.colorscheme 'onedark'
-  --   end,
-  -- },
-
-  -- { 'projekt0n/github-nvim-theme' }, -- custom theme
   -- { 'NTBBloodbath/doom-one.nvim', -- custom theme
   --   config = function()
   --     vim.g.doom_one_plugin_barbar = true
@@ -222,6 +212,7 @@ require('lazy').setup({
   },
   { 'folke/tokyonight.nvim', -- custom theme
     priority = 1000,
+    lazy = false,
     config = function()
       require('tokyonight').setup({
         dim_inactive = true,

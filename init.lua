@@ -373,7 +373,7 @@ require('lazy').setup({
     'tzachar/local-highlight.nvim',
     config = function()
       require('local-highlight').setup({
-        file_types = {'javascript', 'typescript'},
+        file_types = {'javascript', 'typescript', 'html', 'css', 'scss'},
         hlgroup = 'Search',
         cw_hlgroup = nil,
       })

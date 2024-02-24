@@ -259,8 +259,11 @@ require('lazy').setup({
         theme = 'dracula',
         component_separators = '|',
         section_separators = '',
+        disabled_filetypes = { 'NvimTree' },
       },
       sections = {
+        lualine_a = {'mode'},
+        lualine_b = {'branch'}, -- default also has: 'diff', 'diagnostics'
         lualine_c = {
           {
             'filename',
@@ -549,7 +552,7 @@ vim.api.nvim_create_user_command('LiveGrepGitRoot', live_grep_git_root, {})
 
 -- See `:help telescope.builtin`
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
-vim.keymap.set('n', '<leader><space>', require('telescope.builtin').resume, { desc = '[ ] Resume Telescope search' })
+vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
 vim.keymap.set('n', '<leader>/', function()
   -- You can pass additional configuration to telescope to change theme, layout, etc.
   -- https://github.com/nvim-telescope/telescope.nvim#layout-display
@@ -883,6 +886,10 @@ bufferMap('n', '<A-0>', '<Cmd>BufferGoto 10<CR>', bufferOpts)
 bufferMap('n', '<A-p>', '<Cmd>BufferPin<CR>', bufferOpts)
 bufferMap('n', '<A-w>', '<Cmd>BufferClose<CR>', bufferOpts)
 bufferMap('n', '<A-c>', '<Cmd>BufferCloseAllButCurrent<CR>', bufferOpts)
+bufferMap('n', '<A-t>', '<Cmd>tabnew<CR>', bufferOpts)
+bufferMap('n', '<A-n>', '<Cmd>tabnext<CR>', bufferOpts)
+bufferMap('n', '<A-b>', '<Cmd>tabprev<CR>', bufferOpts)
+bufferMap('n', '<A-m>', '<Cmd>tabclose<CR>', bufferOpts)
 -- Sort automatically by...
 bufferMap('n', '<Space>bd', '<Cmd>BufferOrderByDirectory<CR>', { desc = '[B]uffers sort by [D]irectory', silent = true })
 bufferMap('n', '<Space>bl', '<Cmd>BufferOrderByLanguage<CR>', { desc = '[B]uffers sort by [L]anguage', silent = true })

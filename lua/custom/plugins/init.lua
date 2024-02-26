@@ -2,4 +2,175 @@
 --  I promise not to create any merge conflicts in this directory :)
 --
 -- See the kickstart.nvim README for more information
-return {}
+return {
+  { 'rmagatti/session-lens' }, -- no shortcut key bound yet, launch with :SearchSession
+  { 'windwp/nvim-ts-autotag' }, -- open/close html/jsx tags together
+  { 'terrortylor/nvim-comment' }, -- add commenter
+  {
+    'dstein64/nvim-scrollview',
+    config = function()
+      require('scrollview').setup {
+        excluded_filetypes = { 'NvimTree' },
+        winblend = 50,
+        signs_on_startup = { 'all' },
+      }
+    end,
+  }, -- adds scrollbar to the right
+  {
+    'karb94/neoscroll.nvim',
+    config = function()
+      require('neoscroll').setup {
+        -- All these keys will be mapped to their corresponding default scrolling animation
+        mappings = { '<C-u>', '<C-d>', '<C-b>', '<C-f>', '<C-y>', '<C-e>', 'zt', 'zz', 'zb' },
+        hide_cursor = true, -- Hide cursor while scrolling
+        stop_eof = true, -- Stop at <EOF> when scrolling downwards
+        respect_scrolloff = false, -- Stop scrolling when the cursor reaches the scrolloff margin of the file
+        cursor_scrolls_alone = true, -- The cursor will keep on scrolling even if the window cannot scroll further
+        easing_function = nil, -- Default easing function
+        pre_hook = nil, -- Function to run before the scrolling animation starts
+        post_hook = nil, -- Function to run after the scrolling animation ends
+        performance_mode = false, -- Disable "Performance Mode" on all buffers.
+      }
+    end,
+  },
+  {
+    'nvim-tree/nvim-tree.lua',
+    config = function()
+      require('nvim-tree').setup {
+        view = {
+          width = 39,
+        },
+        update_focused_file = {
+          enable = true,
+          update_root = false,
+          ignore_list = {},
+        },
+        ui = {
+          confirm = {
+            remove = true, -- user confirmation when using removing ("d") on an item
+          },
+        },
+      }
+      vim.keymap.set('n', '<leader>t', '<Cmd>NvimTreeToggle<cr>', { desc = 'File Tree [T]oggle', silent = true })
+    end,
+  }, -- add file directory explorer
+  {
+    'nanozuki/tabby.nvim',
+    event = 'VimEnter',
+    dependencies = 'nvim-tree/nvim-web-devicons',
+    config = function()
+      require('tabby.tabline').use_preset('active_wins_at_tail', {
+        nerdfont = true, -- whether use nerdfont
+        lualine_theme = 'dracula', -- lualine theme name
+        buf_name = {
+          mode = 'tail', -- mode = "'unique'|'relative'|'tail'|'shorten'",
+        },
+      })
+
+      -- tabby keymaps:
+      local bufferMap = vim.api.nvim_set_keymap
+      local bufferOpts = { noremap = true, silent = true }
+      -- Move to previous/next
+      bufferMap('n', '<A-t>', '<Cmd>tabnew<CR>', bufferOpts)
+      bufferMap('n', '<A-n>', '<Cmd>tabnext<CR>', bufferOpts)
+      bufferMap('n', '<A-b>', '<Cmd>tabprev<CR>', bufferOpts)
+      bufferMap('n', '<A-w>', '<Cmd>tabclose<CR>', bufferOpts)
+      bufferMap('n', '<A-a>', '<Cmd>tabp<CR>', bufferOpts)
+      bufferMap('n', '<A-d>', '<Cmd>tabn<CR>', bufferOpts)
+      bufferMap('n', '<A-p>', '<Cmd>tabp<CR>', bufferOpts)
+      bufferMap('n', '<A-n>', '<Cmd>tabn<CR>', bufferOpts)
+      bufferMap('n', '<A-;>', '<Cmd>tabp<CR>', bufferOpts)
+      bufferMap('n', "<A-'>", '<Cmd>tabn<CR>', bufferOpts)
+      bufferMap('n', '<A-q>', '<Cmd>-tabmove<CR>', bufferOpts)
+      bufferMap('n', '<A-e>', '<Cmd>+tabmove<CR>', bufferOpts)
+      bufferMap('n', '<A-r>', ':TabRename ', bufferOpts)
+    end,
+  },
+  {
+    'rmagatti/auto-session',
+    config = function()
+      -- https://www.reddit.com/r/neovim/comments/15bfz5f/how_to_open_nvim_tree_after_restoring_a_session/
+      local function change_nvim_tree_dir()
+        local nvim_tree = require 'nvim-tree'
+        nvim_tree.change_dir(vim.fn.getcwd())
+      end
+
+      require('auto-session').setup {
+        log_level = 'error',
+        auto_session_suppress_dirs = nil,
+        post_restore_cmds = { change_nvim_tree_dir, 'NvimTreeOpen' },
+        pre_save_cmds = { 'NvimTreeClose' },
+      }
+    end,
+  },
+  {
+    'tzachar/local-highlight.nvim',
+    config = function()
+      require('local-highlight').setup {
+        file_types = { 'javascript', 'typescript', 'html', 'css', 'scss' },
+        hlgroup = 'Search',
+        cw_hlgroup = nil,
+      }
+    end,
+  },
+  {
+    'windwp/nvim-autopairs',
+    config = function()
+      require('nvim-autopairs').setup {}
+    end,
+  }, -- open/close parens/brackets together
+  {
+    'ThePrimeagen/refactoring.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-treesitter/nvim-treesitter',
+    },
+    config = function()
+      local jsTemplate = 'console.log(">>> %s", %s);'
+      require('refactoring').setup {
+        show_success_message = true,
+        print_var_statements = {
+          javascript = { jsTemplate },
+          typescript = { jsTemplate },
+        },
+      }
+      vim.keymap.set({ 'x', 'n' }, '<leader>ll', require('refactoring').debug.print_var, { desc = 'Console [L]og variable' })
+      vim.keymap.set('n', '<leader>lc', require('refactoring').debug.cleanup, { desc = 'Console log [C]leanup' })
+    end,
+  },
+  {
+    -- Set lualine as statusline
+    'nvim-lualine/lualine.nvim',
+    -- See `:help lualine.txt`
+    opts = {
+      options = {
+        icons_enabled = true,
+        -- theme = 'auto',
+        theme = 'dracula',
+        component_separators = '|',
+        section_separators = '',
+      },
+      sections = {
+        lualine_a = { 'mode' },
+        lualine_b = { 'branch' }, -- default also has: 'diff', 'diagnostics'
+        lualine_c = {
+          {
+            'filename',
+            file_status = true, -- displays file status (readonly status, modified status)
+            path = 1, -- 0 = just filename, 1 = relative path, 2 = absolute path
+          },
+        },
+        lualine_x = { 'filetype' }, -- default has more, simplifying
+      },
+      inactive_sections = {
+        lualine_c = { { 'filename', file_status = true, path = 1 } },
+      },
+      extensions = { 'nvim-tree' },
+    },
+  },
+  {
+    'lukas-reineke/indent-blankline.nvim', -- Add indentation guides even on blank lines
+    main = 'ibl',
+    opts = {},
+  },
+}

@@ -201,21 +201,18 @@ require('lazy').setup({
   },
 
   -- Themes
-  -- { 'NTBBloodbath/doom-one.nvim', -- custom theme
-  --   config = function()
-  --     vim.g.doom_one_plugin_barbar = true
-  --     vim.g.doom_one_plugin_nvim_tree = true
-  --     vim.g.doom_one_plugin_telescope = true
-  --     vim.g.doom_one_plugin_indent_blankline = true
-  --     vim.cmd.colorscheme 'doom-one'
-  --   end
-  -- },
+  { 'NTBBloodbath/doom-one.nvim', -- custom theme
+    config = function()
+      vim.g.doom_one_plugin_nvim_tree = true
+      vim.g.doom_one_plugin_telescope = true
+      vim.g.doom_one_plugin_indent_blankline = true
+    end
+  },
   { 'catppuccin/nvim', -- custom theme
     name = 'catppuccin',
     priority = 1000,
     opts = {
       integrations = {
-        barbar = true,
         fidget = true,
         indent_blankline = { enabled = true }
       }
@@ -229,10 +226,6 @@ require('lazy').setup({
         dim_inactive = true,
         lualine_bold = true,
         on_highlights = function(hl, c)
-          -- barbar colors
-          hl.BufferCurrent = { bg = c.teal, fg = c.black }
-          hl.BufferCurrentMod = { bg = c.yellow, fg = c.black }
-          hl.BufferVisible = { fg = c.teal }
           -- nvim-tree colors
           hl.NvimTreeNormal = { fg = c.none }
           hl.NvimTreeNormalNC = { fg = c.none }
@@ -242,7 +235,8 @@ require('lazy').setup({
       -- vim.cmd.colorscheme 'tokyonight-day'
       -- vim.cmd.colorscheme 'catppuccin-latte'
       -- dark:
-      vim.cmd.colorscheme 'tokyonight-moon'
+      -- vim.cmd.colorscheme 'tokyonight-moon'
+      vim.cmd.colorscheme 'doom-one'
       -- vim.cmd.colorscheme 'catppuccin-macchiato'
       -- vim.cmd.colorscheme 'catppuccin-mocha'
     end,
@@ -259,7 +253,6 @@ require('lazy').setup({
         theme = 'dracula',
         component_separators = '|',
         section_separators = '',
-        disabled_filetypes = { 'NvimTree' },
       },
       sections = {
         lualine_a = {'mode'},
@@ -275,7 +268,8 @@ require('lazy').setup({
       },
       inactive_sections = {
         lualine_c = { { 'filename', file_status = true, path = 1 } }
-      }
+      },
+      extensions = {'nvim-tree'}
     },
   },
 
@@ -347,23 +341,20 @@ require('lazy').setup({
   }, -- adds scrollbar to the right
   { 'terrortylor/nvim-comment' }, -- add commenter
   { 'nvim-tree/nvim-tree.lua' }, -- add file directory explorer
-  { 'romgrk/barbar.nvim',
-    dependencies = {
-      'lewis6991/gitsigns.nvim',
-      'nvim-tree/nvim-web-devicons'
-    },
-    opts = {
-      -- lazy.nvim can automatically call setup for you. just put your options here:
-      insert_at_start = true,
-      animation = true,
-      icons = {
-        pinned = {button = '📌', filename = true},
-        button = '✖',
-      },
-      sidebar_filetypes = { NvimTree = true },
-      highlight_visible = true,
-      -- hide = { inactive = true } -- hide inactive buffers
-    },
+  {
+    'nanozuki/tabby.nvim',
+    event = 'VimEnter',
+    dependencies = 'nvim-tree/nvim-web-devicons',
+    config = function()
+      require('tabby.tabline').use_preset('active_wins_at_tail', {
+        nerdfont = true,              -- whether use nerdfont
+        lualine_theme = 'dracula',          -- lualine theme name
+        buf_name = {
+          mode = 'tail', -- mode = "'unique'|'relative'|'tail'|'shorten'",
+        },
+
+      })
+    end,
   },
   { 'karb94/neoscroll.nvim' },
   { 'rmagatti/auto-session',
@@ -429,7 +420,9 @@ vim.o.shiftwidth = 2
 vim.o.expandtab = true
 vim.o.cursorline = true
 vim.o.autoread = true
-vim.o.scrolloff = 5
+vim.o.scrolloff = 2
+vim.o.showtabline = 2
+vim.opt.sessionoptions = 'curdir,folds,globals,help,tabpages,terminal,winsize' -- to save tab names for tabby.nvim
 -- vim.wo.wrap = false
 
 -- Set highlight on search
@@ -439,7 +432,8 @@ vim.o.hlsearch = false
 vim.wo.number = true
 
 -- Enable mouse mode
-vim.o.mouse = 'a'
+-- vim.o.mouse = '' -- old school mouse support
+vim.o.mousescroll = 'ver:1,hor:1'
 
 -- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.
@@ -861,40 +855,23 @@ require('nvim-tree').setup({
 })
 vim.keymap.set('n', '<leader>t', '<Cmd>NvimTreeToggle<cr>', { desc = 'File Tree [T]oggle', silent = true });
 
--- barbar.nvim keymaps:
+-- tabby keymaps:
 local bufferMap = vim.api.nvim_set_keymap
 local bufferOpts = { noremap = true, silent = true }
 -- Move to previous/next
-bufferMap('n', '<A-;>', '<Cmd>BufferPrevious<CR>', bufferOpts)
-bufferMap('n', '<A-\'>', '<Cmd>BufferNext<CR>', bufferOpts)
-bufferMap('n', '<A-a>', '<Cmd>BufferPrevious<CR>', bufferOpts)
-bufferMap('n', '<A-d>', '<Cmd>BufferNext<CR>', bufferOpts)
-bufferMap('n', '<A-Left>', '<Cmd>BufferPrevious<CR>', bufferOpts)
-bufferMap('n', '<A-Right>', '<Cmd>BufferNext<CR>', bufferOpts)
-bufferMap('n', '<A-q>', '<Cmd>BufferMovePrevious<CR>', bufferOpts)
-bufferMap('n', '<A-e>', '<Cmd>BufferMoveNext<CR>', bufferOpts)
-bufferMap('n', '<A-1>', '<Cmd>BufferGoto 1<CR>', bufferOpts)
-bufferMap('n', '<A-2>', '<Cmd>BufferGoto 2<CR>', bufferOpts)
-bufferMap('n', '<A-3>', '<Cmd>BufferGoto 3<CR>', bufferOpts)
-bufferMap('n', '<A-4>', '<Cmd>BufferGoto 4<CR>', bufferOpts)
-bufferMap('n', '<A-5>', '<Cmd>BufferGoto 5<CR>', bufferOpts)
-bufferMap('n', '<A-6>', '<Cmd>BufferGoto 6<CR>', bufferOpts)
-bufferMap('n', '<A-7>', '<Cmd>BufferGoto 7<CR>', bufferOpts)
-bufferMap('n', '<A-8>', '<Cmd>BufferGoto 8<CR>', bufferOpts)
-bufferMap('n', '<A-9>', '<Cmd>BufferGoto 9<CR>', bufferOpts)
-bufferMap('n', '<A-0>', '<Cmd>BufferGoto 10<CR>', bufferOpts)
-bufferMap('n', '<A-p>', '<Cmd>BufferPin<CR>', bufferOpts)
-bufferMap('n', '<A-w>', '<Cmd>BufferClose<CR>', bufferOpts)
-bufferMap('n', '<A-c>', '<Cmd>BufferCloseAllButCurrent<CR>', bufferOpts)
 bufferMap('n', '<A-t>', '<Cmd>tabnew<CR>', bufferOpts)
 bufferMap('n', '<A-n>', '<Cmd>tabnext<CR>', bufferOpts)
 bufferMap('n', '<A-b>', '<Cmd>tabprev<CR>', bufferOpts)
-bufferMap('n', '<A-m>', '<Cmd>tabclose<CR>', bufferOpts)
--- Sort automatically by...
-bufferMap('n', '<Space>bd', '<Cmd>BufferOrderByDirectory<CR>', { desc = '[B]uffers sort by [D]irectory', silent = true })
-bufferMap('n', '<Space>bl', '<Cmd>BufferOrderByLanguage<CR>', { desc = '[B]uffers sort by [L]anguage', silent = true })
--- bufferMap('n', '<Space>bw', '<Cmd>BufferOrderByWindowNumber<CR>', { desc = '[B]uffers sort by [W]indow #', silent = true })
--- bufferMap('n', '<Space>bb', '<Cmd>BufferOrderByBufferNumber<CR>', bufferOpts)
+bufferMap('n', '<A-w>', '<Cmd>tabclose<CR>', bufferOpts)
+bufferMap('n', '<A-a>', '<Cmd>tabp<CR>', bufferOpts)
+bufferMap('n', '<A-d>', '<Cmd>tabn<CR>', bufferOpts)
+bufferMap('n', '<A-p>', '<Cmd>tabp<CR>', bufferOpts)
+bufferMap('n', '<A-n>', '<Cmd>tabn<CR>', bufferOpts)
+bufferMap('n', '<A-;>', '<Cmd>tabp<CR>', bufferOpts)
+bufferMap('n', '<A-\'>', '<Cmd>tabn<CR>', bufferOpts)
+bufferMap('n', '<A-q>', '<Cmd>-tabmove<CR>', bufferOpts)
+bufferMap('n', '<A-e>', '<Cmd>+tabmove<CR>', bufferOpts)
+bufferMap('n', '<A-r>', ':TabRename ', bufferOpts)
 
 -- neoscroll setup
 require('neoscroll').setup({

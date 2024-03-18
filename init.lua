@@ -332,7 +332,7 @@ require('lazy').setup({
       { 'nvim-telescope/telescope-ui-select.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
-      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+      { 'nvim-tree/nvim-web-devicons', enabled = true },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -372,7 +372,7 @@ require('lazy').setup({
           },
         },
         defaults = {
-          winblend = 20,
+          winblend = 30,
           mappings = {},
           file_ignore_patterns = { 'node_modules', 'yarn.lock', 'package-lock.json' },
         },
@@ -403,7 +403,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>/', function()
         -- You can pass additional configuration to Telescope to change the theme, layout, etc.
         builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-          winblend = 10,
+          winblend = 30,
           previewer = true,
         })
       end, { desc = '[/] Fuzzily search in current buffer' })

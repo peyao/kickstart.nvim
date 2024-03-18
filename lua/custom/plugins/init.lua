@@ -27,8 +27,19 @@ return {
         respect_scrolloff = false, -- Stop scrolling when the cursor reaches the scrolloff margin of the file
         cursor_scrolls_alone = true, -- The cursor will keep on scrolling even if the window cannot scroll further
         easing_function = nil, -- Default easing function
-        pre_hook = nil, -- Function to run before the scrolling animation starts
-        post_hook = nil, -- Function to run after the scrolling animation ends
+        -- Performance Hack: https://github.com/karb94/neoscroll.nvim/issues/80#issue-1579995821
+        pre_hook = function()
+          vim.opt.eventignore:append({
+            'WinScrolled',
+            'CursorMoved',
+           })
+        end,
+          post_hook = function()
+          vim.opt.eventignore:remove({
+            'WinScrolled',
+            'CursorMoved',
+          })
+        end,
         performance_mode = false, -- Disable "Performance Mode" on all buffers.
       }
     end,
@@ -120,22 +131,36 @@ return {
     end,
   }, -- open/close parens/brackets together
   {
-    'ThePrimeagen/refactoring.nvim',
+    'andrewferrier/debugprint.nvim',
     dependencies = {
-      'nvim-lua/plenary.nvim',
-      'nvim-treesitter/nvim-treesitter',
+      'nvim-treesitter/nvim-treesitter'
     },
     config = function()
-      local jsTemplate = 'console.log(">>> %s", %s);'
-      require('refactoring').setup {
-        show_success_message = true,
-        print_var_statements = {
-          javascript = { jsTemplate },
-          typescript = { jsTemplate },
-        },
+      local js = {
+        left = 'console.log("',
+        right = '")',
+        mid_var = '", ',
+        right_var = ")",
       }
-      vim.keymap.set({ 'x', 'n' }, '<leader>ll', require('refactoring').debug.print_var, { desc = 'Console [L]og variable' })
-      vim.keymap.set('n', '<leader>lc', require('refactoring').debug.cleanup, { desc = 'Console log [C]leanup' })
+      require("debugprint").setup {
+        create_keymaps = false,
+        create_commands = false,
+        filetypes = {
+          ["javascript"] = js,
+          ["javascriptreact"] = js,
+          ["typescript"] = js,
+          ["typescriptreact"] = js,
+        },
+        display_counter = false,
+        print_tag = "",
+        display_snippet = false,
+      }
+      vim.keymap.set({'x','n'}, '<leader>ll',
+        function()
+          return require('debugprint').debugprint({ variable = true })
+        end,
+        { desc = 'Console [L]og variable', expr = true }
+      )
     end,
   },
   {

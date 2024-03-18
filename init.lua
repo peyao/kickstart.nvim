@@ -819,6 +819,7 @@ require('lazy').setup({
         keymaps = {
           init_selection = '<C-Space>',
           node_incremental = '<C-Space>',
+          node_decremental = '<C-S-Space>',
         },
       },
     },

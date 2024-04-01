@@ -806,6 +806,9 @@ require('lazy').setup({
       ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'vim', 'vimdoc', 'css', 'scss', 'tsx', 'javascript', 'typescript', 'json' },
       -- Autoinstall languages that are not installed
       auto_install = true,
+      autotag = {
+        enable = true,
+      },
       highlight = {
         enable = true,
         -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.

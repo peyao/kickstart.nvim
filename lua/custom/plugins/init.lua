@@ -70,7 +70,7 @@ return {
     event = 'VimEnter',
     dependencies = 'nvim-tree/nvim-web-devicons',
     config = function()
-      require('tabby.tabline').use_preset('active_wins_at_tail', {
+      require('tabby.tabline').use_preset('tab_only', {
         nerdfont = true, -- whether use nerdfont
         lualine_theme = 'dracula', -- lualine theme name
         buf_name = {
@@ -143,8 +143,6 @@ return {
         right_var = ")",
       }
       require("debugprint").setup {
-        create_keymaps = false,
-        create_commands = false,
         filetypes = {
           ["javascript"] = js,
           ["javascriptreact"] = js,

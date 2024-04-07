@@ -370,6 +370,9 @@ require('lazy').setup({
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
           },
+          file_browser = {
+            hijack_netrw = true
+          },
         },
         defaults = {
           winblend = 30,
@@ -386,6 +389,7 @@ require('lazy').setup({
       -- Enable Telescope extensions if they are installed
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
+      pcall(require('telescope').load_extension, 'file_browser')
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
@@ -397,7 +401,18 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
-      vim.keymap.set('n', '<leader><leader>', builtin.oldfiles, { desc = '[ ] Recent Files' })
+      vim.keymap.set('n', '<leader>so', builtin.oldfiles, { desc = '[S]earch [O]ld Files' })
+      -- vim.keymap.set('n', '<leader><leader>',
+      --   ':Telescope file_browser path=%:p:h select_buffer=true prompt_path=true<CR>',
+      --   { desc = '[ ] Files In Current Directory' }
+      -- )
+      vim.keymap.set('n', '<leader><leader>', function()
+        require('telescope').extensions.file_browser.file_browser {
+          path = '%:p:h',
+          select_buffer = true,
+          prompt_path = true,
+        }
+      end, { desc = '[ ] Files In Current Directory' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()

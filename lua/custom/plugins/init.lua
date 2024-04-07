@@ -66,6 +66,10 @@ return {
     end,
   }, -- add file directory explorer
   {
+    'nvim-telescope/telescope-file-browser.nvim',
+    dependencies = { 'nvim-telescope/telescope.nvim', 'nvim-lua/plenary.nvim' }
+  },
+  {
     'nanozuki/tabby.nvim',
     event = 'VimEnter',
     dependencies = 'nvim-tree/nvim-web-devicons',
@@ -101,10 +105,11 @@ return {
     'rmagatti/auto-session',
     config = function()
       -- https://www.reddit.com/r/neovim/comments/15bfz5f/how_to_open_nvim_tree_after_restoring_a_session/
-      local function change_nvim_tree_dir()
-        local nvim_tree = require 'nvim-tree'
-        nvim_tree.change_dir(vim.fn.getcwd())
-      end
+      -- Uncomment to always start nvim-tree on auto-session resume
+      -- local function change_nvim_tree_dir()
+      --   local nvim_tree = require 'nvim-tree'
+      --   nvim_tree.change_dir(vim.fn.getcwd())
+      -- end
 
       require('auto-session').setup {
         log_level = 'error',

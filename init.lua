@@ -442,6 +442,11 @@ require('lazy').setup({
         -- previewer seems required for previewing colorscheme changes live
         require('telescope.builtin').colorscheme(require('telescope.themes').get_ivy { previewer = true })
       end, { desc = '[S]earch [C]olorschemes' })
+
+      vim.keymap.set('n', '<leader>b',
+        ':exec (&bg == "light") ? "set bg=dark" : "set bg=light"<CR>',
+        { desc = '[B]ackground Light/Dark Toggle' }
+      )
     end,
   },
 
@@ -543,7 +548,7 @@ require('lazy').setup({
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           --  For example, in C this would take you to the header.
           map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-
+          
           -- The following two autocommands are used to highlight references of the
           -- word under your cursor when your cursor rests there for a little while.
           --    See `:help CursorHold` for information about when this is executed
@@ -595,6 +600,7 @@ require('lazy').setup({
           filetypes = { 'javascript', 'typescript', 'typescriptreact', 'typescript.tsx' },
         },
         html = { filetypes = { 'html', 'twig', 'hbs' } },
+        cssls = { filetypes = { 'css', 'scss' } },
 
         lua_ls = {
           -- cmd = {...},

@@ -16,6 +16,13 @@ return {
         fidget = true,
         indent_blankline = { enabled = true },
       },
+      dim_inactive = {
+        enabled = true
+      },
+      background = {
+        light = 'latte',
+        dark = 'mocha'
+      }
     },
   },
   {
@@ -33,16 +40,21 @@ return {
         end,
       }
       -- You can configure highlights by doing something like
-      vim.cmd.hi 'Comment gui=none'
+      -- vim.cmd.hi 'Comment gui=none'
 
       -- light:
       -- vim.cmd.colorscheme 'tokyonight-day'
       -- vim.cmd.colorscheme 'catppuccin-latte'
       -- dark:
-      vim.cmd.colorscheme 'tokyonight-moon'
+      -- vim.cmd.colorscheme 'tokyonight-moon'
       -- vim.cmd.colorscheme 'doom-one'
-      -- vim.cmd.colorscheme 'catppuccin-macchiato'
-      -- vim.cmd.colorscheme 'catppuccin-mocha'
+      vim.cmd.colorscheme 'catppuccin-mocha'
     end,
   },
+  {
+    'rebelot/kanagawa.nvim',
+    opts = {
+      dimInactive = true
+    }
+  }
 }

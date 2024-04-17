@@ -299,6 +299,8 @@ require('lazy').setup({
         ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
         ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
         ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
+        ['<leader>l'] = { name = '[L]og', _ = 'which_key_ignore' },
+        ['<leader>G'] = { name = '[G]it', _ = 'which_key_ignore' },
       }
     end,
   },
@@ -402,6 +404,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>so', builtin.oldfiles, { desc = '[S]earch [O]ld Files' })
+      vim.keymap.set('n', '<leader>Gh', builtin.git_bcommits, { desc = 'Git file [H]istory' })
       -- vim.keymap.set('n', '<leader><leader>',
       --   ':Telescope file_browser path=%:p:h select_buffer=true prompt_path=true<CR>',
       --   { desc = '[ ] Files In Current Directory' }

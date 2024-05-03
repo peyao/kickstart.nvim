@@ -377,7 +377,7 @@ require('lazy').setup({
           },
         },
         defaults = {
-          winblend = 30,
+          winblend = 20,
           mappings = {},
           file_ignore_patterns = { 'node_modules', 'yarn.lock', 'package-lock.json' },
         },
@@ -404,6 +404,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>so', builtin.oldfiles, { desc = '[S]earch [O]ld Files' })
+      vim.keymap.set('n', '<leader>sb', builtin.buffers, { desc = '[S]earch [B]uffers' })
       vim.keymap.set('n', '<leader>Gh', builtin.git_bcommits, { desc = 'Git file [H]istory' })
       -- vim.keymap.set('n', '<leader><leader>',
       --   ':Telescope file_browser path=%:p:h select_buffer=true prompt_path=true<CR>',

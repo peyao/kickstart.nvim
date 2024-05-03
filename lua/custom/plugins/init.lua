@@ -49,7 +49,7 @@ return {
     config = function()
       require('nvim-tree').setup {
         view = {
-          width = 39,
+          width = 60,
         },
         update_focused_file = {
           enable = true,
@@ -76,6 +76,7 @@ return {
     config = function()
       require('tabby.tabline').use_preset('tab_only', {
         nerdfont = true, -- whether use nerdfont
+        -- https://github.com/nvim-lualine/lualine.nvim/blob/master/THEMES.md
         lualine_theme = 'dracula', -- lualine theme name
         buf_name = {
           mode = 'tail', -- mode = "'unique'|'relative'|'tail'|'shorten'",

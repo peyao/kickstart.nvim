@@ -62,7 +62,7 @@ return {
           },
         },
       }
-      vim.keymap.set('n', '<leader>t', '<Cmd>NvimTreeToggle<cr>', { desc = 'File Tree [T]oggle', silent = true })
+      vim.keymap.set('n', '<leader>tt', '<Cmd>NvimTreeToggle<cr>', { desc = 'File Tree [T]oggle', silent = true })
     end,
   }, -- add file directory explorer
   {

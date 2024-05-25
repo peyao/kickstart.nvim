@@ -4,8 +4,15 @@
 -- See the kickstart.nvim README for more information
 return {
   { 'rmagatti/session-lens' }, -- no shortcut key bound yet, launch with :SearchSession
-  { 'windwp/nvim-ts-autotag' }, -- open/close html/jsx tags together
   { 'terrortylor/nvim-comment' }, -- add commenter
+  {
+    'windwp/nvim-ts-autotag',
+    opts = {
+      enable_close = true, -- Auto close tags
+      enable_rename = true, -- Auto rename pairs of tags
+      enable_close_on_slash = false -- Auto close on trailing </
+    }
+  }, -- open/close html/jsx tags together
   {
     'dstein64/nvim-scrollview',
     config = function()
@@ -62,7 +69,7 @@ return {
           },
         },
       }
-      vim.keymap.set('n', '<leader>tt', '<Cmd>NvimTreeToggle<cr>', { desc = 'File Tree [T]oggle', silent = true })
+      vim.keymap.set('n', '<leader>t', '<Cmd>NvimTreeToggle<cr>', { desc = 'File Tree [T]oggle', silent = true })
     end,
   }, -- add file directory explorer
   {
@@ -217,7 +224,7 @@ return {
     -- setting the keybinding for LazyGit with 'keys' is recommended in
     -- order to load the plugin when the command is run for the first time
     keys = {
-      { "<leader>Gl", "<cmd>LazyGit<cr>", desc = "[l]azygit" }
+      { "<leader>GG", "<cmd>LazyGit<cr>", desc = "lazy[G]it" }
     }
   },
 }

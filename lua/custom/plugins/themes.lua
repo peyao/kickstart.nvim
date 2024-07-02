@@ -42,13 +42,8 @@ return {
       -- You can configure highlights by doing something like
       -- vim.cmd.hi 'Comment gui=none'
 
-      -- light:
-      -- vim.cmd.colorscheme 'tokyonight-day'
-      -- vim.cmd.colorscheme 'catppuccin-latte'
-      -- dark:
-      -- vim.cmd.colorscheme 'tokyonight-moon'
-      -- vim.cmd.colorscheme 'doom-one'
-      vim.cmd.colorscheme 'catppuccin-mocha'
+      -- vim.cmd.colorscheme 'catppuccin'
+      -- vim.cmd.colorscheme 'tokyonight'
     end,
   },
   {
@@ -56,5 +51,20 @@ return {
     opts = {
       dimInactive = true
     }
+  },
+  {
+    'maxmx03/fluoromachine.nvim',
+    priority = 1000,
+    config = function()
+      local fm = require 'fluoromachine'
+      fm.setup {
+        glow = true,
+        -- transparent = true,
+        -- theme = 'fluoromachine',
+        -- theme = 'retrowave',
+        theme = 'delta',
+      }
+      vim.cmd.colorscheme 'fluoromachine'
+    end
   }
 }

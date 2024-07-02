@@ -136,8 +136,6 @@ return {
     config = function()
       require('local-highlight').setup {
         file_types = { 'javascript', 'typescript', 'html', 'css', 'scss' },
-        hlgroup = 'Search',
-        cw_hlgroup = nil,
       }
     end,
   },
@@ -187,6 +185,7 @@ return {
         icons_enabled = true,
         -- theme = 'auto',
         theme = 'dracula',
+        -- theme = 'fluoromachine',
         component_separators = '|',
         section_separators = '',
       },
@@ -212,23 +211,5 @@ return {
     'lukas-reineke/indent-blankline.nvim', -- Add indentation guides even on blank lines
     main = 'ibl',
     opts = {},
-  },
-  {
-    "kdheepak/lazygit.nvim",
-    cmd = {
-      "LazyGit",
-      "LazyGitConfig",
-      "LazyGitCurrentFile",
-      "LazyGitFilter",
-      "LazyGitFilterCurrentFile",
-    },
-    dependencies = {
-      "nvim-lua/plenary.nvim", -- optional for floating window border decoration
-    },
-    -- setting the keybinding for LazyGit with 'keys' is recommended in
-    -- order to load the plugin when the command is run for the first time
-    keys = {
-      { "<leader>GG", "<cmd>LazyGit<cr>", desc = "lazy[G]it" }
-    }
   },
 }

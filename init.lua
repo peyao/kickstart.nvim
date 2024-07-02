@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -165,7 +165,6 @@ vim.opt.scrolloff = 2
 vim.opt.showtabline = 2
 vim.opt.sessionoptions = 'curdir,folds,globals,help,tabpages,terminal,winsize' -- to save tab names for tabby.nvim
 vim.opt.mousescroll = 'ver:1,hor:1'
-vim.api.nvim_exec('language en_US', true)
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`

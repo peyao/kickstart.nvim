@@ -165,6 +165,7 @@ vim.opt.scrolloff = 2
 vim.opt.showtabline = 2
 vim.opt.sessionoptions = 'curdir,folds,globals,help,tabpages,terminal,winsize' -- to save tab names for tabby.nvim
 vim.opt.mousescroll = 'ver:1,hor:1'
+vim.opt.mousemoveevent = true
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -261,11 +262,12 @@ require('lazy').setup({
     'lewis6991/gitsigns.nvim',
     opts = {
       signs = {
-        add = { text = '+' },
-        change = { text = '~' },
-        delete = { text = '_' },
-        topdelete = { text = '‾' },
+        add          = { text = '┃' },
+        change       = { text = '┃' },
+        delete       = { text = '_' },
+        topdelete    = { text = '‾' },
         changedelete = { text = '~' },
+        untracked    = { text = '┆' },
       },
     },
   },
@@ -764,6 +766,10 @@ require('lazy').setup({
             luasnip.lsp_expand(args.body)
           end,
         },
+        window = {
+          completion = cmp.config.window.bordered(),
+          documentation = cmp.config.window.bordered()
+        },
         completion = { completeopt = 'menu,menuone,noinsert' },
 
         -- For an understanding of why these mappings were
@@ -874,9 +880,6 @@ require('lazy').setup({
       ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc', 'css', 'scss', 'tsx', 'javascript', 'typescript', 'json' },
       -- Autoinstall languages that are not installed
       auto_install = true,
-      autotag = {
-        enable = true,
-      },
       highlight = {
         enable = true,
         -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.

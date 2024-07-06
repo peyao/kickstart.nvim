@@ -63,6 +63,13 @@ return {
         -- theme = 'fluoromachine',
         -- theme = 'retrowave',
         theme = 'delta',
+        colors = function(c, color)
+          return {
+            editor = {
+              selection = color.darken(c.yellow, 70)
+            }
+          }
+        end,
       }
       vim.cmd.colorscheme 'fluoromachine'
     end

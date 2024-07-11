@@ -2,6 +2,13 @@
 --  I promise not to create any merge conflicts in this directory :)
 --
 -- See the kickstart.nvim README for more information
+local jsDebugPrintFileType = {
+  left = 'console.log("',
+  right = '")',
+  mid_var = '", ',
+  right_var = ")",
+}
+
 return {
   { 'rmagatti/session-lens' }, -- no shortcut key bound yet, launch with :SearchSession
   { 'terrortylor/nvim-comment' }, -- add commenter
@@ -147,34 +154,32 @@ return {
   }, -- open/close parens/brackets together
   {
     'andrewferrier/debugprint.nvim',
-    dependencies = {
-      'nvim-treesitter/nvim-treesitter'
+    opts = {
+      keymaps = {
+        normal = {
+          variable_below = '<leader>ll',
+          variable_above = '<leader>lL',
+          delete_debug_prints = '<leader>ld',
+        }
+      },
+      filetypes = {
+        ["javascript"] = jsDebugPrintFileType,
+        ["javascriptreact"] = jsDebugPrintFileType,
+        ["typescript"] = jsDebugPrintFileType,
+        ["typescriptreact"] = jsDebugPrintFileType,
+      },
+      display_counter = false,
+      print_tag = "",
+      display_snippet = false,
     },
-    config = function()
-      local js = {
-        left = 'console.log("',
-        right = '")',
-        mid_var = '", ',
-        right_var = ")",
-      }
-      require("debugprint").setup {
-        filetypes = {
-          ["javascript"] = js,
-          ["javascriptreact"] = js,
-          ["typescript"] = js,
-          ["typescriptreact"] = js,
-        },
-        display_counter = false,
-        print_tag = "",
-        display_snippet = false,
-      }
-      vim.keymap.set({'x','n'}, '<leader>ll',
-        function()
-          return require('debugprint').debugprint({ variable = true })
-        end,
-        { desc = 'Console [L]og variable', expr = true }
-      )
-    end,
+    keys = {
+      { '<leader>l', mode = 'n' },
+      { '<leader>l', mode = 'x' },
+    },
+    cmd = {
+      "ToggleCommentDebugPrints",
+      "DeleteDebugPrints",
+    },
   },
   {
     -- Set lualine as statusline
@@ -196,13 +201,14 @@ return {
           {
             'filename',
             file_status = true, -- displays file status (readonly status, modified status)
-            path = 1, -- 0 = just filename, 1 = relative path, 2 = absolute path
+            path = 0, -- 0 = just filename, 1 = relative path, 2 = absolute path
           },
         },
         lualine_x = { 'filetype' }, -- default has more, simplifying
       },
       inactive_sections = {
-        lualine_c = { { 'filename', file_status = true, path = 1 } },
+        lualine_c = { { 'filename', file_status = true, path = 0 } },
+        lualine_x = { 'filetype' },
       },
       extensions = { 'nvim-tree' },
     },

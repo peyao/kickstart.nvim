@@ -168,11 +168,16 @@ vim.opt.mousescroll = 'ver:1,hor:1'
 vim.opt.mousemoveevent = true
 
 -- Automatically resize opened windows when terminal size changes
-vim.opt.equalalways = true
+-- List of events: https://neovim.io/doc/user/autocmd.html#_5.-events
 vim.api.nvim_create_autocmd('VimResized', {
   pattern = '*',
-  command = 'wincmd = '
+  command = 'wincmd ='
 })
+vim.api.nvim_create_autocmd('TabEnter', {
+  pattern = '*',
+  command = 'wincmd ='
+})
+
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -182,6 +187,7 @@ vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
+vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
@@ -319,6 +325,7 @@ require('lazy').setup({
         { "<leader>r", group = "[R]ename" },
         { "<leader>s", group = "[S]earch" },
         { "<leader>w", group = "[W]orkspace" },
+        { "<leader>f", group = "[F]ile" },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       }
     end,
@@ -476,6 +483,15 @@ require('lazy').setup({
         ':exec (&bg == "light") ? "set bg=dark" : "set bg=light"<CR>',
         { desc = '[B]ackground Light/Dark Toggle' }
       )
+
+      vim.keymap.set('n', '<leader>ff',
+        ':let @+=expand("%:t")<CR>',
+        { desc = 'Yank buffer [F]ilename' }
+      )
+      vim.keymap.set('n', '<leader>fa',
+        ':let @+=expand("%:p")<CR>',
+        { desc = 'Yank buffer [A]bsolute path' }
+      )
     end,
   },
 
@@ -583,7 +599,7 @@ require('lazy').setup({
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           --  For example, in C this would take you to the header.
           map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-          
+
           -- The following two autocommands are used to highlight references of the
           -- word under your cursor when your cursor rests there for a little while.
           --    See `:help CursorHold` for information about when this is executed
@@ -658,11 +674,7 @@ require('lazy').setup({
         html = { filetypes = { 'html', 'twig', 'hbs' } },
         cssls = { filetypes = { 'css', 'scss' } },
         angularls = {
-          -- filetypes = { 'javascript', 'typescript', 'typescriptreact', 'typescript.tsx' },
           root_dir = require('lspconfig.util').root_pattern('angular.json', 'project.json'),
-          -- settings = {
-          --   root_dir = require('lspconfig.util').root_pattern('angular.json', 'project.json')
-          -- }
         },
 
         lua_ls = {

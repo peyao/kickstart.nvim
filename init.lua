@@ -706,7 +706,7 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`tsserver`) will work just fine
-        tsserver = {
+        ts_ls = {
           filetypes = { 'javascript', 'typescript', 'typescriptreact', 'typescript.tsx' },
         },
         html = { filetypes = { 'html', 'twig', 'hbs' } },
@@ -714,10 +714,6 @@ require('lazy').setup({
         angularls = {
           root_dir = require('lspconfig.util').root_pattern('angular.json', 'project.json'),
         },
-        -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
-        --
-
         lua_ls = {
           -- cmd = {...},
           -- filetypes = { ...},

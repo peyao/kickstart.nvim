@@ -471,6 +471,16 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>so', builtin.oldfiles, { desc = '[S]earch [O]ld Files' })
       vim.keymap.set('n', '<leader>sb', builtin.buffers, { desc = '[S]earch [B]uffers' })
       vim.keymap.set('n', '<leader>GH', builtin.git_bcommits, { desc = 'Git file [H]istory' })
+      vim.keymap.set('n', '<leader>GB', function()
+        local git_blame = require('gitblame')
+        -- set GIT_BLAME_REPO in ENV (export GIT_BLAME_REPO="https://github.com/user/repo")
+        local repo_url = os.getenv("GIT_BLAME_REPO")
+        if (repo_url) then
+          git_blame.get_sha(function(sha)
+            vim.fn.jobstart({ 'open', repo_url .. '/commit/' .. sha })
+          end)
+        end
+      end, { desc = 'Open Git [B]lame in browser' })
       -- vim.keymap.set('n', '<leader><leader>',
       --   ':Telescope file_browser path=%:p:h select_buffer=true prompt_path=true<CR>',
       --   { desc = '[ ] Files In Current Directory' }
@@ -718,6 +728,7 @@ require('lazy').setup({
           -- cmd = {...},
           -- filetypes = { ...},
           -- capabilities = {},
+          global = { 'vim' },
           settings = {
             Lua = {
               completion = {

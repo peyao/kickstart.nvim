@@ -182,36 +182,57 @@ return {
     },
   },
   {
+    "f-person/git-blame.nvim",
+    event = "VeryLazy",
+    opts = {
+      enabled = true,
+      message_template = "<author> ┆ <date> ┆ <sha>",
+      date_format = "%m-%d-%Y",
+      virtual_text_column = 1,
+      message_when_not_committed = 'Not Yet Committed',
+      display_virtual_text = 0,
+    },
+  },
+  {
     -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
     -- See `:help lualine.txt`
-    opts = {
-      options = {
-        icons_enabled = true,
-        -- theme = 'auto',
-        theme = 'dracula',
-        -- theme = 'fluoromachine',
-        component_separators = '|',
-        section_separators = '',
-      },
-      sections = {
-        lualine_a = { 'mode' },
-        lualine_b = { 'branch' }, -- default also has: 'diff', 'diagnostics'
-        lualine_c = {
-          {
-            'filename',
-            file_status = true, -- displays file status (readonly status, modified status)
-            path = 0, -- 0 = just filename, 1 = relative path, 2 = absolute path
-          },
+    config = function()
+      local git_blame = require('gitblame')
+      vim.g.gitblame_max_commit_summary_length = 12
+
+      require('lualine').setup {
+        options = {
+          icons_enabled = true,
+          -- theme = 'auto',
+          theme = 'dracula',
+          -- theme = 'fluoromachine',
+          -- component_separators = '┃',
+          component_separators = '',
+          section_separators = '',
         },
-        lualine_x = { 'filetype' }, -- default has more, simplifying
-      },
-      inactive_sections = {
-        lualine_c = { { 'filename', file_status = true, path = 0 } },
-        lualine_x = { 'filetype' },
-      },
-      extensions = { 'nvim-tree' },
-    },
+        sections = {
+          lualine_a = { 'mode' },
+          lualine_b = { 'branch' }, -- default also has: 'diff', 'diagnostics'
+          lualine_c = {
+            {
+              'filename',
+              file_status = true, -- displays file status (readonly status, modified status)
+              path = 0, -- 0 = just filename, 1 = relative path, 2 = absolute path
+            },
+          },
+          lualine_x = {
+            { git_blame.get_current_blame_text, cond = git_blame.is_blame_text_available },
+            { 'filetype' }, -- default has more, simplifying
+          }
+        },
+        inactive_sections = {
+          lualine_c = { { 'filename', file_status = true, path = 0 } },
+          lualine_x = { 'filetype' },
+        },
+        extensions = { 'nvim-tree' },
+      }
+    end
   },
   {
     'lukas-reineke/indent-blankline.nvim', -- Add indentation guides even on blank lines
@@ -238,7 +259,7 @@ return {
           -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
           override = {
             ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
-            ["vim.lsp.util.stylize_markdown"] = true,
+            -- ["vim.lsp.util.stylize_markdown"] = true, -- disabled for eagle.nvim stylizing
             ["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
           },
         },
@@ -255,5 +276,12 @@ return {
         },
       })
     end
-  }
+  },
+  {
+    "soulis-1256/eagle.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("eagle").setup()
+    end
+  },
 }

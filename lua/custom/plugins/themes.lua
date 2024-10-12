@@ -53,6 +53,12 @@ return {
     }
   },
   {
+    'nyngwang/nvimgelion',
+    config = function ()
+      -- vim.cmd.colorscheme 'nvimgelion'
+    end
+  },
+  {
     'maxmx03/fluoromachine.nvim',
     priority = 1000,
     config = function()
@@ -73,5 +79,5 @@ return {
       }
       vim.cmd.colorscheme 'fluoromachine'
     end
-  }
+  },
 }

@@ -139,14 +139,6 @@ return {
     end,
   },
   {
-    'tzachar/local-highlight.nvim',
-    config = function()
-      require('local-highlight').setup {
-        file_types = { 'javascript', 'typescript', 'html', 'css', 'scss' },
-      }
-    end,
-  },
-  {
     'windwp/nvim-autopairs',
     config = function()
       require('nvim-autopairs').setup {}
@@ -282,6 +274,19 @@ return {
     event = "VeryLazy",
     config = function()
       require("eagle").setup()
+    end
+  },
+  {
+    "rmagatti/goto-preview",
+    event = "BufEnter",
+    config = function()
+      require('goto-preview').setup {
+        zindex = 50,
+        width = 150,
+        height = 25,
+        opacity = 5,
+        stack_floating_preview_windows = false,
+      }
     end
   },
 }

@@ -535,6 +535,9 @@ require('lazy').setup({
         ':let @+=expand("%:p")<CR>',
         { desc = 'Yank buffer [A]bsolute path' }
       )
+
+      vim.keymap.set('n', 'gp', '<cmd>lua require("goto-preview").goto_preview_definition()<CR>', { desc = 'Goto Preview' })
+      vim.keymap.set('n', 'gP', '<cmd>lua require("goto-preview").close_all_win()<CR>', { desc = 'Goto Preview Close All' })
     end,
   },
 

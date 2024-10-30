@@ -282,8 +282,8 @@ return {
     config = function()
       require('goto-preview').setup {
         zindex = 50,
-        width = 150,
-        height = 25,
+        width = 120,
+        height = 40,
         opacity = 5,
         stack_floating_preview_windows = false,
       }

@@ -813,7 +813,8 @@ require('lazy').setup({
         -- python = { "isort", "black" },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        javascript = { "prettierd", "prettier", stop_after_first = true },
+        typescript = { "prettierd", "prettier", stop_after_first = true },
       },
     },
   },
@@ -939,7 +940,17 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  { 
+    'folke/todo-comments.nvim', 
+    event = 'VimEnter', 
+    dependencies = { 'nvim-lua/plenary.nvim' }, 
+    opts = {
+      signs = false,
+      highlight = {
+        multiline = false
+      }
+    }
+  },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
@@ -976,6 +987,7 @@ require('lazy').setup({
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
+      require('mini.cursorword').setup()
     end,
   },
   { -- Highlight, edit, and navigate code

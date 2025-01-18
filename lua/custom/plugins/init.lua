@@ -154,6 +154,10 @@ return {
           delete_debug_prints = '<leader>ld',
         }
       },
+      commands = {
+        toggle_comment_debug_prints = "ToggleCommentDebugPrints",
+        delete_debug_prints = "DeleteDebugPrints",
+      },
       filetypes = {
         ["javascript"] = jsDebugPrintFileType,
         ["javascriptreact"] = jsDebugPrintFileType,
@@ -161,16 +165,12 @@ return {
         ["typescriptreact"] = jsDebugPrintFileType,
       },
       display_counter = false,
-      print_tag = "",
+      print_tag = "<^>",
       display_snippet = false,
     },
     keys = {
       { '<leader>l', mode = 'n' },
       { '<leader>l', mode = 'x' },
-    },
-    cmd = {
-      "ToggleCommentDebugPrints",
-      "DeleteDebugPrints",
     },
   },
   {

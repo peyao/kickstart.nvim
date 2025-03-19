@@ -6,7 +6,7 @@ local jsDebugPrintFileType = {
   left = 'console.log("',
   right = '")',
   mid_var = '", ',
-  right_var = ")",
+  right_var = ')',
 }
 
 return {
@@ -19,8 +19,8 @@ return {
         opts = {
           enable_close = true, -- Auto close tags
           enable_rename = true, -- Auto rename pairs of tags
-          enable_close_on_slash = false -- Auto close on trailing </
-        }
+          enable_close_on_slash = false, -- Auto close on trailing </
+        },
       }
     end,
   }, -- open/close html/jsx tags together
@@ -47,16 +47,16 @@ return {
         easing_function = nil, -- Default easing function
         -- Performance Hack: https://github.com/karb94/neoscroll.nvim/issues/80#issue-1579995821
         pre_hook = function()
-          vim.opt.eventignore:append({
+          vim.opt.eventignore:append {
             'WinScrolled',
             'CursorMoved',
-           })
+          }
         end,
-          post_hook = function()
-          vim.opt.eventignore:remove({
+        post_hook = function()
+          vim.opt.eventignore:remove {
             'WinScrolled',
             'CursorMoved',
-          })
+          }
         end,
         performance_mode = false, -- Disable "Performance Mode" on all buffers.
       }
@@ -85,7 +85,7 @@ return {
   }, -- add file directory explorer
   {
     'nvim-telescope/telescope-file-browser.nvim',
-    dependencies = { 'nvim-telescope/telescope.nvim', 'nvim-lua/plenary.nvim' }
+    dependencies = { 'nvim-telescope/telescope.nvim', 'nvim-lua/plenary.nvim' },
   },
   {
     'nanozuki/tabby.nvim',
@@ -152,20 +152,20 @@ return {
           variable_below = '<leader>ll',
           variable_above = '<leader>lL',
           delete_debug_prints = '<leader>ld',
-        }
+        },
       },
       commands = {
-        toggle_comment_debug_prints = "ToggleCommentDebugPrints",
-        delete_debug_prints = "DeleteDebugPrints",
+        toggle_comment_debug_prints = 'ToggleCommentDebugPrints',
+        delete_debug_prints = 'DeleteDebugPrints',
       },
       filetypes = {
-        ["javascript"] = jsDebugPrintFileType,
-        ["javascriptreact"] = jsDebugPrintFileType,
-        ["typescript"] = jsDebugPrintFileType,
-        ["typescriptreact"] = jsDebugPrintFileType,
+        ['javascript'] = jsDebugPrintFileType,
+        ['javascriptreact'] = jsDebugPrintFileType,
+        ['typescript'] = jsDebugPrintFileType,
+        ['typescriptreact'] = jsDebugPrintFileType,
       },
       display_counter = false,
-      print_tag = "<^>",
+      print_tag = '<^>',
       display_snippet = false,
     },
     keys = {
@@ -174,12 +174,12 @@ return {
     },
   },
   {
-    "f-person/git-blame.nvim",
-    event = "VeryLazy",
+    'f-person/git-blame.nvim',
+    event = 'VeryLazy',
     opts = {
       enabled = true,
-      message_template = "<author> ┆ <date> ┆ <sha>",
-      date_format = "%m-%d-%Y",
+      message_template = '<author> ┆ <date> ┆ <sha>',
+      date_format = '%m-%d-%Y',
       virtual_text_column = 1,
       message_when_not_committed = 'Not Yet Committed',
       display_virtual_text = 0,
@@ -190,8 +190,17 @@ return {
     'nvim-lualine/lualine.nvim',
     -- See `:help lualine.txt`
     config = function()
-      local git_blame = require('gitblame')
+      local git_blame = require 'gitblame'
       vim.g.gitblame_max_commit_summary_length = 12
+
+      local grapple = {
+        function()
+          return '󰛢 ' .. require('grapple').name_or_index()
+        end,
+        cond = function()
+          return package.loaded['grapple'] and require('grapple').exists()
+        end,
+      }
 
       require('lualine').setup {
         options = {
@@ -205,7 +214,10 @@ return {
         },
         sections = {
           lualine_a = { 'mode' },
-          lualine_b = { 'branch' }, -- default also has: 'diff', 'diagnostics'
+          lualine_b = {
+            'branch',
+            grapple,
+          }, -- default also has: 'diff', 'diagnostics'
           lualine_c = {
             {
               'filename',
@@ -216,15 +228,16 @@ return {
           lualine_x = {
             { git_blame.get_current_blame_text, cond = git_blame.is_blame_text_available },
             { 'filetype' }, -- default has more, simplifying
-          }
+          },
         },
         inactive_sections = {
+          lualine_b = { grapple },
           lualine_c = { { 'filename', file_status = true, path = 0 } },
           lualine_x = { 'filetype' },
         },
         extensions = { 'nvim-tree' },
       }
-    end
+    end,
   },
   {
     'lukas-reineke/indent-blankline.nvim', -- Add indentation guides even on blank lines
@@ -232,27 +245,27 @@ return {
     opts = {},
   },
   {
-    "folke/noice.nvim",
-    event = "VeryLazy",
+    'folke/noice.nvim',
+    event = 'VeryLazy',
     opts = {
       -- add any options here
     },
     dependencies = {
       -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
-      "MunifTanjim/nui.nvim",
+      'MunifTanjim/nui.nvim',
       -- OPTIONAL:
       --   `nvim-notify` is only needed, if you want to use the notification view.
       --   If not available, we use `mini` as the fallback
       -- "rcarriga/nvim-notify",
     },
     config = function()
-      require("noice").setup({
+      require('noice').setup {
         lsp = {
           -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
           override = {
-            ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+            ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
             -- ["vim.lsp.util.stylize_markdown"] = true, -- disabled for eagle.nvim stylizing
-            ["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
+            ['cmp.entry.get_documentation'] = true, -- requires hrsh7th/nvim-cmp
           },
         },
         -- you can enable a preset for easier configuration
@@ -264,21 +277,21 @@ return {
           lsp_doc_border = true, -- add a border to hover docs and signature help
         },
         cmdline = {
-          view = "cmdline"
+          view = 'cmdline',
         },
-      })
-    end
+      }
+    end,
   },
   {
-    "soulis-1256/eagle.nvim",
-    event = "VeryLazy",
+    'soulis-1256/eagle.nvim',
+    event = 'VeryLazy',
     config = function()
-      require("eagle").setup()
-    end
+      require('eagle').setup()
+    end,
   },
   {
-    "rmagatti/goto-preview",
-    event = "BufEnter",
+    'rmagatti/goto-preview',
+    event = 'BufEnter',
     config = function()
       require('goto-preview').setup {
         zindex = 50,
@@ -287,7 +300,7 @@ return {
         opacity = 5,
         stack_floating_preview_windows = false,
       }
-    end
+    end,
   },
   {
     'Wansmer/treesj',
@@ -302,6 +315,24 @@ return {
     end,
   },
   {
-    'HiPhish/rainbow-delimiters.nvim'
-  }
+    'HiPhish/rainbow-delimiters.nvim',
+  },
+  {
+    'cbochs/grapple.nvim',
+    dependencies = {
+      { 'nvim-tree/nvim-web-devicons', lazy = true },
+    },
+    opts = {
+      scope = 'git', -- also try out "git_branch"
+    },
+    event = { 'BufReadPost', 'BufNewFile' },
+    cmd = 'Grapple',
+    keys = {
+      { '<leader>m', '<cmd>Grapple<cr>', desc = '[M]ark file for Grapple' },
+      { '<leader>sm', '<cmd>Telescope grapple tags<cr>', desc = '[S]earch for Grapple [M]arked tags' },
+      { '<M-j>', '<cmd>Grapple cycle_tags next<cr>', desc = 'Grapple cycle next tag' },
+      { '<M-k>', '<cmd>Grapple cycle_tags prev<cr>', desc = 'Grapple cycle previous tag' },
+      { '<leader>M', '<cmd>Grapple reset<cr>', desc = 'Reset Grapple [M]arks' },
+    },
+  },
 }

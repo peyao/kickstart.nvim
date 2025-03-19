@@ -289,4 +289,19 @@ return {
       }
     end
   },
+  {
+    'Wansmer/treesj',
+    dependencies = { 'nvim-treesitter/nvim-treesitter' }, -- if you install parsers with `nvim-treesitter`
+    config = function()
+      require('treesj').setup {
+        use_default_keymaps = false,
+      }
+      vim.keymap.set('n', '<leader>ct', '<Cmd>TSJToggle<cr>', { desc = 'treesj [t]oggle', silent = true })
+      vim.keymap.set('n', '<leader>cs', '<Cmd>TSJSplit<cr>', { desc = 'treesj [s]plit', silent = true })
+      vim.keymap.set('n', '<leader>cj', '<Cmd>TSJJoin<cr>', { desc = 'treesj [j]oin', silent = true })
+    end,
+  },
+  {
+    'HiPhish/rainbow-delimiters.nvim'
+  }
 }

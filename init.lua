@@ -433,19 +433,24 @@ require('lazy').setup({
             require('telescope.themes').get_dropdown(),
           },
           file_browser = {
-            hijack_netrw = true
+            hijack_netrw = true,
           },
         },
         defaults = {
           winblend = 20,
-          mappings = {},
+          mappings = {
+            i = {
+              ['<C-s>'] = require('telescope.actions').cycle_previewers_next,
+              ['<C-a>'] = require('telescope.actions').cycle_previewers_prev,
+            },
+          },
           file_ignore_patterns = { 'node_modules', 'yarn.lock', 'package-lock.json' },
           layout_config = {
             horizontal = {
               width = 0.95,
-              preview_width = 0.4
+              preview_width = 0.4,
             },
-          }
+          },
         },
         pickers = {
           colorscheme = {

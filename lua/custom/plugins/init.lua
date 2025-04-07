@@ -92,32 +92,28 @@ return {
     event = 'VimEnter',
     dependencies = 'nvim-tree/nvim-web-devicons',
     config = function()
-      require('tabby.tabline').use_preset('tab_only', {
-        nerdfont = true, -- whether use nerdfont
-        -- https://github.com/nvim-lualine/lualine.nvim/blob/master/THEMES.md
-        lualine_theme = 'dracula', -- lualine theme name
-        buf_name = {
-          mode = 'tail', -- mode = "'unique'|'relative'|'tail'|'shorten'",
+      require('tabby').setup {
+        preset = 'tab_only',
+        option = {
+          nerdfont = true,
+          lualine_theme = 'dracula',
+          buf_name = {
+            mode = 'tail', -- mode = "'unique'|'relative'|'tail'|'shorten'",
+          },
         },
-      })
+      }
 
       -- tabby keymaps:
       local bufferMap = vim.api.nvim_set_keymap
       local bufferOpts = { noremap = true, silent = true }
       -- Move to previous/next
       bufferMap('n', '<A-t>', '<Cmd>tabnew<CR>', bufferOpts)
-      bufferMap('n', '<A-n>', '<Cmd>tabnext<CR>', bufferOpts)
-      bufferMap('n', '<A-b>', '<Cmd>tabprev<CR>', bufferOpts)
       bufferMap('n', '<A-w>', '<Cmd>tabclose<CR>', bufferOpts)
       bufferMap('n', '<A-a>', '<Cmd>tabp<CR>', bufferOpts)
       bufferMap('n', '<A-d>', '<Cmd>tabn<CR>', bufferOpts)
-      bufferMap('n', '<A-p>', '<Cmd>tabp<CR>', bufferOpts)
-      bufferMap('n', '<A-n>', '<Cmd>tabn<CR>', bufferOpts)
-      bufferMap('n', '<A-;>', '<Cmd>tabp<CR>', bufferOpts)
-      bufferMap('n', "<A-'>", '<Cmd>tabn<CR>', bufferOpts)
       bufferMap('n', '<A-q>', '<Cmd>-tabmove<CR>', bufferOpts)
       bufferMap('n', '<A-e>', '<Cmd>+tabmove<CR>', bufferOpts)
-      bufferMap('n', '<A-r>', ':TabRename ', bufferOpts)
+      bufferMap('n', '<A-r>', ':Tabby rename_tab ', bufferOpts)
     end,
   },
   {
@@ -178,9 +174,10 @@ return {
     event = 'VeryLazy',
     opts = {
       enabled = true,
-      message_template = '<author> ┆ <date> ┆ <sha>',
-      date_format = '%m-%d-%Y',
-      virtual_text_column = 1,
+      message_template = '<author> ┆ <date>',
+      -- date_format = '%m-%d-%Y',
+      date_format = '%r',
+      virtual_text_column = 80,
       message_when_not_committed = 'Not Yet Committed',
       display_virtual_text = 0,
     },
@@ -192,47 +189,33 @@ return {
     config = function()
       local git_blame = require 'gitblame'
       vim.g.gitblame_max_commit_summary_length = 12
-
-      local grapple = {
-        function()
-          return '󰛢 ' .. require('grapple').name_or_index()
-        end,
-        cond = function()
-          return package.loaded['grapple'] and require('grapple').exists()
-        end,
-      }
+      local grapple = 'grapple'
 
       require('lualine').setup {
         options = {
           icons_enabled = true,
-          -- theme = 'auto',
           theme = 'dracula',
-          -- theme = 'fluoromachine',
-          -- component_separators = '┃',
           component_separators = '',
           section_separators = '',
         },
         sections = {
-          lualine_a = { 'mode' },
+          lualine_a = { 'branch' },
           lualine_b = {
-            'branch',
             grapple,
-          }, -- default also has: 'diff', 'diagnostics'
-          lualine_c = {
             {
               'filename',
               file_status = true, -- displays file status (readonly status, modified status)
               path = 0, -- 0 = just filename, 1 = relative path, 2 = absolute path
             },
-          },
+          }, -- default also has: 'diff', 'diagnostics'
+          lualine_c = {},
           lualine_x = {
             { git_blame.get_current_blame_text, cond = git_blame.is_blame_text_available },
             { 'filetype' }, -- default has more, simplifying
           },
         },
         inactive_sections = {
-          lualine_b = { grapple },
-          lualine_c = { { 'filename', file_status = true, path = 0 } },
+          lualine_c = { grapple, { 'filename', file_status = true, path = 0 } },
           lualine_x = { 'filetype' },
         },
         extensions = { 'nvim-tree' },
@@ -323,16 +306,16 @@ return {
       { 'nvim-tree/nvim-web-devicons', lazy = true },
     },
     opts = {
-      scope = 'git', -- also try out "git_branch"
+      scope = 'git_branch', -- git, git_branch
     },
     event = { 'BufReadPost', 'BufNewFile' },
     cmd = 'Grapple',
     keys = {
-      { '<leader>m', '<cmd>Grapple<cr>', desc = '[M]ark file for Grapple' },
+      { '<A-m>', '<cmd>Grapple<cr>', desc = '[M]ark file for Grapple' },
+      { '<A-n>', '<cmd>Grapple cycle_tags next<cr>', desc = 'Grapple cycle next tag' },
+      { '<A-p>', '<cmd>Grapple cycle_tags prev<cr>', desc = 'Grapple cycle previous tag' },
+      { '<A-S-m>', '<cmd>Grapple reset<cr>', desc = 'Reset Grapple [M]arks' },
       { '<leader>sm', '<cmd>Telescope grapple tags<cr>', desc = '[S]earch for Grapple [M]arked tags' },
-      { '<M-j>', '<cmd>Grapple cycle_tags next<cr>', desc = 'Grapple cycle next tag' },
-      { '<M-k>', '<cmd>Grapple cycle_tags prev<cr>', desc = 'Grapple cycle previous tag' },
-      { '<leader>M', '<cmd>Grapple reset<cr>', desc = 'Reset Grapple [M]arks' },
     },
   },
 }

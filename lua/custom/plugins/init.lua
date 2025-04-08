@@ -11,7 +11,26 @@ local jsDebugPrintFileType = {
 
 return {
   { 'rmagatti/session-lens' }, -- no shortcut key bound yet, launch with :SearchSession
-  { 'terrortylor/nvim-comment' }, -- add commenter
+  {
+    'numToStr/Comment.nvim',
+    config = function()
+      require('Comment').setup {
+        toggler = {
+          line = '<leader>cc',
+          block = '<leader>cb',
+        },
+        opleader = {
+          line = '<leader>cc',
+          block = '<leader>cb',
+        },
+        extra = {
+          above = '<leader>cO',
+          below = '<leader>co',
+          eol = '<leader>cA',
+        },
+      }
+    end,
+  }, -- add commenter
   {
     'windwp/nvim-ts-autotag',
     config = function()

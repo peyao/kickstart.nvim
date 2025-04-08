@@ -178,11 +178,11 @@ vim.opt.mousemoveevent = true
 -- List of events: https://neovim.io/doc/user/autocmd.html#_5.-events
 vim.api.nvim_create_autocmd('VimResized', {
   pattern = '*',
-  command = 'wincmd ='
+  command = 'wincmd =',
 })
 vim.api.nvim_create_autocmd('TabEnter', {
   pattern = '*',
-  command = 'wincmd ='
+  command = 'wincmd =',
 })
 
 -- [[ Basic Keymaps ]]
@@ -220,10 +220,10 @@ vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower win
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 -- NOTE: Some terminals have coliding keymaps or are not able to send distinct keycodes
-vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
-vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
-vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
-vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
+vim.keymap.set('n', '<C-S-h>', '<C-w>H', { desc = 'Move window to the left' })
+vim.keymap.set('n', '<C-S-l>', '<C-w>L', { desc = 'Move window to the right' })
+vim.keymap.set('n', '<C-S-j>', '<C-w>J', { desc = 'Move window to the lower' })
+vim.keymap.set('n', '<C-S-k>', '<C-w>K', { desc = 'Move window to the upper' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -292,12 +292,12 @@ require('lazy').setup({
     'lewis6991/gitsigns.nvim',
     opts = {
       signs = {
-        add          = { text = '┃' },
-        change       = { text = '┃' },
-        delete       = { text = '_' },
-        topdelete    = { text = '‾' },
+        add = { text = '┃' },
+        change = { text = '┃' },
+        delete = { text = '_' },
+        topdelete = { text = '‾' },
         changedelete = { text = '~' },
-        untracked    = { text = '┆' },
+        untracked = { text = '┆' },
       },
     },
   },
@@ -318,11 +318,11 @@ require('lazy').setup({
 
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
-    event = 'VimEnter', -- Sets the loading event to 'VimEnter'
+    event = 'VeryLazy',
     opts = {
       -- delay between pressing a key and opening which-key (milliseconds)
       -- this setting is independent of vim.opt.timeoutlen
-      delay = 0,
+      -- delay = 0,
       icons = {
         -- set icon mappings to true if you have a Nerd Font
         mappings = vim.g.have_nerd_font,
@@ -371,15 +371,15 @@ require('lazy').setup({
 
       -- Document existing key chains
       spec = {
-        { "<leader>T", group = "[T]oggle" },
+        { '<leader>T', group = '[T]oggle' },
         { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
-        { "<leader>d", group = "[D]ocument" },
-        { "<leader>l", group = "[L]og" },
-        { "<leader>r", group = "[R]ename" },
-        { "<leader>s", group = "[S]earch" },
-        { "<leader>w", group = "[W]orkspace" },
-        { "<leader>f", group = "[F]ile" },
-        { "<leader>G", group = "[G]it" },
+        { '<leader>d', group = '[D]ocument' },
+        { '<leader>l', group = '[L]og' },
+        { '<leader>r', group = '[R]ename' },
+        { '<leader>s', group = '[S]earch' },
+        { '<leader>w', group = '[W]orkspace' },
+        { '<leader>f', group = '[F]ile' },
+        { '<leader>G', group = '[G]it' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
@@ -499,12 +499,12 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sb', builtin.buffers, { desc = '[S]earch [B]uffers' })
       vim.keymap.set('n', '<leader>GH', builtin.git_bcommits, { desc = 'Git file [H]istory' })
       vim.keymap.set('n', '<leader>GB', function()
-        local git_blame = require('gitblame')
+        local git_blame = require 'gitblame'
         -- set GIT_BLAME_REPO in ENV (export GIT_BLAME_REPO="https://github.com/user/repo")
-        local repo_url = os.getenv("GIT_BLAME_REPO")
-        if (repo_url) then
+        local repo_url = os.getenv 'GIT_BLAME_REPO'
+        if repo_url then
           git_blame.get_sha(function(sha)
-            vim.fn.jobstart({ 'open', repo_url .. '/commit/' .. sha })
+            vim.fn.jobstart { 'open', repo_url .. '/commit/' .. sha }
           end)
         end
       end, { desc = 'Open Git [B]lame in browser' })
@@ -549,19 +549,10 @@ require('lazy').setup({
         require('telescope.builtin').colorscheme(require('telescope.themes').get_ivy { previewer = true })
       end, { desc = '[S]earch [C]olorschemes' })
 
-      vim.keymap.set('n', '<leader>b',
-        ':exec (&bg == "light") ? "set bg=dark" : "set bg=light"<CR>',
-        { desc = '[B]ackground Light/Dark Toggle' }
-      )
+      vim.keymap.set('n', '<leader>b', ':exec (&bg == "light") ? "set bg=dark" : "set bg=light"<CR>', { desc = '[B]ackground Light/Dark Toggle' })
 
-      vim.keymap.set('n', '<leader>ff',
-        ':let @+=expand("%:t")<CR>',
-        { desc = 'Yank buffer [F]ilename' }
-      )
-      vim.keymap.set('n', '<leader>fa',
-        ':let @+=expand("%:p")<CR>',
-        { desc = 'Yank buffer [A]bsolute path' }
-      )
+      vim.keymap.set('n', '<leader>ff', ':let @+=expand("%:t")<CR>', { desc = 'Yank buffer [F]ilename' })
+      vim.keymap.set('n', '<leader>fa', ':let @+=expand("%:p")<CR>', { desc = 'Yank buffer [A]bsolute path' })
 
       vim.keymap.set('n', 'gp', '<cmd>lua require("goto-preview").goto_preview_definition()<CR>', { desc = 'Goto Preview' })
       vim.keymap.set('n', 'gP', '<cmd>lua require("goto-preview").close_all_win()<CR>', { desc = 'Goto Preview Close All' })
@@ -885,9 +876,9 @@ require('lazy').setup({
         -- python = { "isort", "black" },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        javascript = { "prettierd", "prettier", stop_after_first = true },
-        typescript = { "prettierd", "prettier", stop_after_first = true },
-        html = { "prettierd", "prettier", stop_after_first = true },
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        typescript = { 'prettierd', 'prettier', stop_after_first = true },
+        html = { 'prettierd', 'prettier', stop_after_first = true },
       },
     },
   },
@@ -943,7 +934,7 @@ require('lazy').setup({
         },
         window = {
           completion = cmp.config.window.bordered(),
-          documentation = cmp.config.window.bordered()
+          documentation = cmp.config.window.bordered(),
         },
         completion = { completeopt = 'menu,menuone,noinsert' },
 
@@ -1037,16 +1028,16 @@ require('lazy').setup({
   -- },
 
   -- Highlight todo, notes, etc in comments
-  { 
-    'folke/todo-comments.nvim', 
-    event = 'VimEnter', 
-    dependencies = { 'nvim-lua/plenary.nvim' }, 
+  {
+    'folke/todo-comments.nvim',
+    event = 'VimEnter',
+    dependencies = { 'nvim-lua/plenary.nvim' },
     opts = {
       signs = false,
       highlight = {
-        multiline = false
-      }
-    }
+        multiline = false,
+      },
+    },
   },
 
   { -- Collection of various small independent plugins/modules
@@ -1066,25 +1057,25 @@ require('lazy').setup({
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
+      require('mini.cursorword').setup()
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
       --  and try some other statusline plugin
-      local statusline = require 'mini.statusline'
+      -- local statusline = require 'mini.statusline'
       -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
+      -- statusline.setup { use_icons = vim.g.have_nerd_font }
 
       -- You can configure sections in the statusline by overriding their
       -- default behavior. For example, here we set the section for
       -- cursor location to LINE:COLUMN
       ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function()
-        return '%2l:%-2v'
-      end
+      -- statusline.section_location = function()
+      --   return '%2l:%-2v'
+      -- end
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
-      require('mini.cursorword').setup()
     end,
   },
   { -- Highlight, edit, and navigate code
@@ -1093,7 +1084,25 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'css', 'scss', 'tsx', 'javascript', 'typescript', 'json' },
+      ensure_installed = {
+        'bash',
+        'c',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'vim',
+        'vimdoc',
+        'css',
+        'scss',
+        'tsx',
+        'javascript',
+        'typescript',
+        'json',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {

@@ -17,12 +17,12 @@ return {
         indent_blankline = { enabled = true },
       },
       dim_inactive = {
-        enabled = true
+        enabled = true,
       },
       background = {
         light = 'latte',
-        dark = 'mocha'
-      }
+        dark = 'mocha',
+      },
     },
   },
   {
@@ -49,14 +49,14 @@ return {
   {
     'rebelot/kanagawa.nvim',
     opts = {
-      dimInactive = true
-    }
+      dimInactive = true,
+    },
   },
   {
     'nyngwang/nvimgelion',
-    config = function ()
+    config = function()
       -- vim.cmd.colorscheme 'nvimgelion'
-    end
+    end,
   },
   {
     'maxmx03/fluoromachine.nvim',
@@ -72,13 +72,13 @@ return {
         colors = function(c, color)
           return {
             editor = {
-              selection = color.darken(c.yellow, 70)
-            }
+              selection = color.darken(c.yellow, 70),
+            },
           }
         end,
       }
       -- vim.cmd.colorscheme 'fluoromachine'
-    end
+    end,
   },
   {
     'projekt0n/github-nvim-theme',
@@ -86,16 +86,16 @@ return {
     lazy = false, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
-      require('github-theme').setup({
+      require('github-theme').setup {
         options = {
           dim_inactive = true,
           styles = {
             comments = 'italic',
           },
-        }
-      })
+        },
+      }
 
-      vim.cmd('colorscheme github_light')
+      vim.cmd 'colorscheme github_light'
     end,
   },
 }

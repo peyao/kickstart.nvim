@@ -293,16 +293,17 @@ return {
   },
   {
     'rmagatti/goto-preview',
-    event = 'BufEnter',
-    config = function()
-      require('goto-preview').setup {
-        zindex = 50,
-        width = 120,
-        height = 40,
-        opacity = 5,
-        stack_floating_preview_windows = false,
-      }
-    end,
+    dependencies = { 'rmagatti/logger.nvim' },
+    event = 'VeryLazy',
+    opts = {
+      zindex = 50,
+      width = 150,
+      height = 45,
+      opacity = 0,
+      stack_floating_preview_windows = false,
+      border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, -- Border characters of the floating window
+    },
+    config = true, -- necessary as per https://github.com/rmagatti/goto-preview/issues/88
   },
   {
     'Wansmer/treesj',

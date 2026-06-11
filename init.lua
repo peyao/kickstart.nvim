@@ -87,6 +87,8 @@ P.S. You can delete this when you're done too. It's your config now! :)
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
+vim.loader.enable()
+
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
@@ -609,8 +611,8 @@ require('lazy').setup({
       -- Useful status updates for LSP.
       { 'j-hui/fidget.nvim', opts = {} },
 
-      -- Allows extra capabilities provided by nvim-cmp
-      'hrsh7th/cmp-nvim-lsp',
+      -- Allows extra capabilities provided by blink.cmp
+      'saghen/blink.cmp',
     },
     config = function()
       -- Brief aside: **What is LSP?**
@@ -768,9 +770,10 @@ require('lazy').setup({
       -- Diagnostic Config
       -- See :help vim.diagnostic.Opts
       vim.diagnostic.config {
+        update_in_insert = false,
         severity_sort = true,
         float = { border = 'rounded', source = 'if_many' },
-        underline = { severity = vim.diagnostic.severity.ERROR },
+        underline = { severity = { min = vim.diagnostic.severity.WARN } },
         signs = vim.g.have_nerd_font and {
           text = {
             [vim.diagnostic.severity.ERROR] = '󰅚 ',
@@ -779,27 +782,18 @@ require('lazy').setup({
             [vim.diagnostic.severity.HINT] = '󰌶 ',
           },
         } or {},
-        virtual_text = {
-          source = 'if_many',
-          spacing = 2,
-          format = function(diagnostic)
-            local diagnostic_message = {
-              [vim.diagnostic.severity.ERROR] = diagnostic.message,
-              [vim.diagnostic.severity.WARN] = diagnostic.message,
-              [vim.diagnostic.severity.INFO] = diagnostic.message,
-              [vim.diagnostic.severity.HINT] = diagnostic.message,
-            }
-            return diagnostic_message[diagnostic.severity]
+        virtual_text = true,
+        jump = {
+          on_jump = function(_, bufnr)
+            vim.diagnostic.open_float { bufnr = bufnr, scope = 'cursor', focus = false }
           end,
         },
       }
 
       -- LSP servers and clients are able to communicate to each other what features they support.
       --  By default, Neovim doesn't support everything that is in the LSP specification.
-      --  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
-      --  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
-      local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
+      --  blink.cmp adds completion capabilities and broadcasts them to all servers.
+      local capabilities = vim.tbl_deep_extend('force', vim.lsp.protocol.make_client_capabilities(), require('blink.cmp').get_lsp_capabilities())
 
       -- Enable the following language servers
       --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
@@ -844,16 +838,25 @@ require('lazy').setup({
           end,
         },
         lua_ls = {
-          -- cmd = { ... },
-          -- filetypes = { ... },
-          -- capabilities = {},
-          global = { 'vim' },
+          on_init = function(client)
+            client.server_capabilities.documentFormattingProvider = false
+            if client.workspace_folders then
+              local path = client.workspace_folders[1].name
+              if path ~= vim.fn.stdpath 'config' and (vim.uv.fs_stat(path .. '/.luarc.json') or vim.uv.fs_stat(path .. '/.luarc.jsonc')) then
+                return
+              end
+            end
+            client.config.settings.Lua = vim.tbl_deep_extend('force', client.config.settings.Lua, {
+              runtime = { version = 'LuaJIT' },
+              workspace = {
+                checkThirdParty = false,
+                library = vim.api.nvim_get_runtime_file('', true),
+              },
+            })
+          end,
           settings = {
             Lua = {
-              completion = {
-                callSnippet = 'Replace',
-              },
-              -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
+              completion = { callSnippet = 'Replace' },
               -- diagnostics = { disable = { 'missing-fields' } },
             },
           },
@@ -950,126 +953,34 @@ require('lazy').setup({
   },
 
   { -- Autocompletion
-    'hrsh7th/nvim-cmp',
+    'saghen/blink.cmp',
     cond = not vim.g.vscode,
-    event = 'InsertEnter',
+    version = '1.*',
     dependencies = {
-      -- Snippet Engine & its associated nvim-cmp source
       {
         'L3MON4D3/LuaSnip',
+        version = '2.*',
         build = (function()
-          -- Build Step is needed for regex support in snippets.
-          -- This step is not supported in many windows environments.
-          -- Remove the below condition to re-enable on windows.
           if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
             return
           end
           return 'make install_jsregexp'
         end)(),
-        dependencies = {
-          -- `friendly-snippets` contains a variety of premade snippets.
-          --    See the README about individual language/framework/plugin snippets:
-          --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
-        },
       },
-      'saadparwaiz1/cmp_luasnip',
-
-      -- Adds other completion capabilities.
-      --  nvim-cmp does not ship with all sources by default. They are split
-      --  into multiple repos for maintenance purposes.
-      'hrsh7th/cmp-nvim-lsp',
-      'hrsh7th/cmp-path',
-      'hrsh7th/cmp-nvim-lsp-signature-help',
     },
-    config = function()
-      -- See `:help cmp`
-      local cmp = require 'cmp'
-      local luasnip = require 'luasnip'
-      luasnip.config.setup {}
-
-      cmp.setup {
-        snippet = {
-          expand = function(args)
-            luasnip.lsp_expand(args.body)
-          end,
-        },
-        window = {
-          completion = cmp.config.window.bordered(),
-          documentation = cmp.config.window.bordered(),
-        },
-        completion = { completeopt = 'menu,menuone,noinsert' },
-
-        -- For an understanding of why these mappings were
-        -- chosen, you will need to read `:help ins-completion`
-        --
-        -- No, but seriously. Please read `:help ins-completion`, it is really good!
-        mapping = cmp.mapping.preset.insert {
-          -- Select the [n]ext item
-          ['<C-n>'] = cmp.mapping.select_next_item(),
-          -- Select the [p]revious item
-          ['<C-p>'] = cmp.mapping.select_prev_item(),
-
-          -- Scroll the documentation window [b]ack / [f]orward
-          ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-          ['<C-f>'] = cmp.mapping.scroll_docs(4),
-
-          -- Accept ([y]es) the completion.
-          --  This will auto-import if your LSP supports it.
-          --  This will expand snippets if the LSP sent a snippet.
-          ['<C-y>'] = cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Replace, select = true },
-
-          -- If you prefer more traditional completion keymaps,
-          -- you can uncomment the following lines
-          --['<CR>'] = cmp.mapping.confirm { select = true },
-          --['<Tab>'] = cmp.mapping.select_next_item(),
-          --['<S-Tab>'] = cmp.mapping.select_prev_item(),
-
-          -- Manually trigger a completion from nvim-cmp.
-          --  Generally you don't need this, because nvim-cmp will display
-          --  completions whenever it has completion options available.
-          ['<C-Space>'] = cmp.mapping.complete {},
-
-          -- Think of <c-l> as moving to the right of your snippet expansion.
-          --  So if you have a snippet that's like:
-          --  function $name($args)
-          --    $body
-          --  end
-          --
-          -- <c-l> will move you to the right of each of the expansion locations.
-          -- <c-h> is similar, except moving you backwards.
-          ['<C-l>'] = cmp.mapping(function()
-            if luasnip.expand_or_locally_jumpable() then
-              luasnip.expand_or_jump()
-            end
-          end, { 'i', 's' }),
-          ['<C-h>'] = cmp.mapping(function()
-            if luasnip.locally_jumpable(-1) then
-              luasnip.jump(-1)
-            end
-          end, { 'i', 's' }),
-
-          -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
-          --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
-        },
-        sources = {
-          {
-            name = 'lazydev',
-            -- set group index to 0 to skip loading LuaLS completions as lazydev recommends it
-            group_index = 0,
-          },
-          { name = 'nvim_lsp' },
-          { name = 'luasnip' },
-          { name = 'path' },
-          { name = 'nvim_lsp_signature_help' },
-        },
-      }
-    end,
+    opts = {
+      keymap = { preset = 'default' },
+      appearance = { nerd_font_variant = 'mono' },
+      completion = {
+        documentation = { auto_show = false, auto_show_delay_ms = 500 },
+      },
+      sources = {
+        default = { 'lsp', 'path', 'snippets' },
+      },
+      snippets = { preset = 'luasnip' },
+      fuzzy = { implementation = 'lua' },
+      signature = { enabled = true },
+    },
   },
 
   -- { -- You can easily change to a different colorscheme.
@@ -1129,6 +1040,8 @@ require('lazy').setup({
       if not vim.g.vscode then
         require('mini.cursorword').setup()
         vim.api.nvim_set_hl(0, 'MiniCursorword', { underline = true })
+        require('mini.icons').setup()
+        MiniIcons.mock_nvim_web_devicons()
       end
 
       -- Simple and easy statusline.
@@ -1185,7 +1098,7 @@ require('lazy').setup({
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
         additional_vim_regex_highlighting = { 'ruby' },
       },
-      indent = { enable = true, disable = { 'ruby' } },
+      indent = { enable = true, disable = { 'ruby', 'typescript', 'javascript', 'tsx' } },
       incremental_selection = {
         enable = true,
         keymaps = {

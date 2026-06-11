@@ -10,9 +10,19 @@ local jsDebugPrintFileType = {
 }
 
 return {
-  { 'rmagatti/session-lens' }, -- no shortcut key bound yet, launch with :SearchSession
+  {
+    'folke/snacks.nvim',
+    priority = 1000,
+    lazy = false,
+    opts = {},
+  },
+  {
+    'rmagatti/session-lens',
+    cond = not vim.g.vscode,
+  }, -- no shortcut key bound yet, launch with :SearchSession
   {
     'numToStr/Comment.nvim',
+    cond = not vim.g.vscode,
     config = function()
       require('Comment').setup {
         toggler = {
@@ -45,61 +55,67 @@ return {
   }, -- open/close html/jsx tags together
   {
     'dstein64/nvim-scrollview',
+    cond = not vim.g.vscode,
+    dependencies = { 'lewis6991/gitsigns.nvim' },
     config = function()
       require('scrollview').setup {
         excluded_filetypes = { 'NvimTree' },
         winblend = 50,
         signs_on_startup = { 'all' },
       }
+      require('scrollview.contrib.gitsigns').setup()
     end,
   }, -- adds scrollbar to the right
   {
-    'karb94/neoscroll.nvim',
+    'declancm/cinnamon.nvim',
+    cond = not vim.g.vscode,
     config = function()
-      require('neoscroll').setup {
-        -- All these keys will be mapped to their corresponding default scrolling animation
-        mappings = { '<C-u>', '<C-d>', '<C-b>', '<C-f>', '<C-y>', '<C-e>', 'zt', 'zz', 'zb' },
-        hide_cursor = true, -- Hide cursor while scrolling
-        stop_eof = true, -- Stop at <EOF> when scrolling downwards
-        respect_scrolloff = false, -- Stop scrolling when the cursor reaches the scrolloff margin of the file
-        cursor_scrolls_alone = true, -- The cursor will keep on scrolling even if the window cannot scroll further
-        easing_function = nil, -- Default easing function
-        -- Performance Hack: https://github.com/karb94/neoscroll.nvim/issues/80#issue-1579995821
-        pre_hook = function()
-          vim.opt.eventignore:append {
-            'WinScrolled',
-            'CursorMoved',
-          }
-        end,
-        post_hook = function()
-          vim.opt.eventignore:remove {
-            'WinScrolled',
-            'CursorMoved',
-          }
-        end,
-        performance_mode = false, -- Disable "Performance Mode" on all buffers.
+      require('cinnamon').setup {
+        keymaps = {
+          basic = true,
+          extra = true,
+        },
       }
     end,
   },
   {
     'nvim-tree/nvim-tree.lua',
+    cond = not vim.g.vscode,
     config = function()
       require('nvim-tree').setup {
         view = {
           width = 60,
+          side = 'right',
         },
         update_focused_file = {
           enable = true,
-          update_root = false,
-          ignore_list = {},
+          update_root = {
+            enable = false,
+            ignore_list = {},
+          },
         },
         ui = {
           confirm = {
             remove = true, -- user confirmation when using removing ("d") on an item
           },
         },
+        tab = {
+          sync = {
+            open = true,
+            close = true,
+          },
+        },
       }
-      vim.keymap.set('n', '<leader>t', '<Cmd>NvimTreeToggle<cr>', { desc = 'File Tree [T]oggle', silent = true })
+      vim.keymap.set('n', '<C-/>', function()
+        local api = require 'nvim-tree.api'
+        if not api.tree.is_visible() then
+          api.tree.open()
+        elseif vim.bo.filetype == 'NvimTree' then
+          api.tree.close()
+        else
+          api.tree.focus()
+        end
+      end, { desc = 'File Tree smart toggle', silent = true })
     end,
   }, -- add file directory explorer
   {
@@ -137,6 +153,7 @@ return {
   },
   {
     'rmagatti/auto-session',
+    cond = not vim.g.vscode,
     config = function()
       -- https://www.reddit.com/r/neovim/comments/15bfz5f/how_to_open_nvim_tree_after_restoring_a_session/
       -- Uncomment to always start nvim-tree on auto-session resume
@@ -155,12 +172,14 @@ return {
   },
   {
     'windwp/nvim-autopairs',
+    cond = not vim.g.vscode,
     config = function()
       require('nvim-autopairs').setup {}
     end,
   }, -- open/close parens/brackets together
   {
     'andrewferrier/debugprint.nvim',
+    cond = not vim.g.vscode,
     opts = {
       keymaps = {
         normal = {
@@ -190,6 +209,7 @@ return {
   },
   {
     'f-person/git-blame.nvim',
+    cond = not vim.g.vscode,
     event = 'VeryLazy',
     opts = {
       enabled = true,
@@ -204,6 +224,7 @@ return {
   {
     -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
+    cond = not vim.g.vscode,
     -- See `:help lualine.txt`
     config = function()
       local git_blame = require 'gitblame'
@@ -243,11 +264,13 @@ return {
   },
   {
     'lukas-reineke/indent-blankline.nvim', -- Add indentation guides even on blank lines
+    cond = not vim.g.vscode,
     main = 'ibl',
     opts = {},
   },
   {
     'folke/noice.nvim',
+    cond = not vim.g.vscode,
     event = 'VeryLazy',
     opts = {
       -- add any options here
@@ -258,7 +281,7 @@ return {
       -- OPTIONAL:
       --   `nvim-notify` is only needed, if you want to use the notification view.
       --   If not available, we use `mini` as the fallback
-      -- "rcarriga/nvim-notify",
+      -- 'rcarriga/nvim-notify',
     },
     config = function()
       require('noice').setup {
@@ -284,15 +307,19 @@ return {
       }
     end,
   },
-  {
-    'soulis-1256/eagle.nvim',
-    event = 'VeryLazy',
-    config = function()
-      require('eagle').setup()
-    end,
-  },
+  -- {
+  --   'soulis-1256/eagle.nvim',
+  --   event = 'VeryLazy',
+  --   config = function()
+  --     require('eagle').setup {
+  --       show_headers = false,
+  --       border = 'rounded',
+  --     }
+  --   end,
+  -- },
   {
     'rmagatti/goto-preview',
+    cond = not vim.g.vscode,
     dependencies = { 'rmagatti/logger.nvim' },
     event = 'VeryLazy',
     opts = {
@@ -307,6 +334,7 @@ return {
   },
   {
     'Wansmer/treesj',
+    cond = not vim.g.vscode,
     dependencies = { 'nvim-treesitter/nvim-treesitter' }, -- if you install parsers with `nvim-treesitter`
     config = function()
       require('treesj').setup {
@@ -319,9 +347,11 @@ return {
   },
   {
     'HiPhish/rainbow-delimiters.nvim',
+    cond = not vim.g.vscode,
   },
   {
     'cbochs/grapple.nvim',
+    cond = not vim.g.vscode,
     dependencies = {
       { 'nvim-tree/nvim-web-devicons', lazy = true },
     },
@@ -337,5 +367,169 @@ return {
       { '<A-S-m>', '<cmd>Grapple reset<cr>', desc = 'Reset Grapple [M]arks' },
       { '<leader>sm', '<cmd>Telescope grapple tags<cr>', desc = '[S]earch for Grapple [M]arked tags' },
     },
+  },
+  -- {
+  --   'pmizio/typescript-tools.nvim',
+  --   dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
+  --   opts = {},
+  -- },
+  {
+    'coder/claudecode.nvim',
+    cond = not vim.g.vscode,
+    dependencies = { 'folke/snacks.nvim' },
+    opts = {
+      terminal = {
+        provider = 'snacks',
+        snacks_win_opts = {
+          position = 'left',
+          width = 0.25,
+          border = 'rounded',
+          wo = {
+            winfixwidth = true,
+          },
+          keys = {
+            claude_hide = {
+              '<C-,>',
+              function(self)
+                vim.g.claude_panel_open = false
+                self:hide()
+              end,
+              mode = 't',
+              desc = 'Hide',
+            },
+            claude_focus_prev = {
+              '<C-l>',
+              function()
+                vim.cmd 'wincmd l'
+              end,
+              mode = 't',
+              desc = 'Focus previous window',
+            },
+          },
+        },
+      },
+    },
+    config = function(_, opts)
+      require('claudecode').setup(opts)
+
+      local claude_augroup = vim.api.nvim_create_augroup('ClaudePanelTabPersist', { clear = true })
+
+      vim.api.nvim_create_autocmd('TabLeave', {
+        group = claude_augroup,
+        callback = function()
+          if not vim.g.claude_panel_open then
+            return
+          end
+          local ok, term_mod = pcall(require, 'claudecode.terminal')
+          if not ok then
+            return
+          end
+          local bufnr = term_mod.get_active_terminal_bufnr and term_mod.get_active_terminal_bufnr()
+          if not bufnr then
+            return
+          end
+          for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+            if vim.api.nvim_win_get_buf(win) == bufnr then
+              vim.api.nvim_win_close(win, false)
+              break
+            end
+          end
+        end,
+      })
+
+      vim.api.nvim_create_autocmd('TabEnter', {
+        group = claude_augroup,
+        callback = function()
+          if not vim.g.claude_panel_open then
+            return
+          end
+          if vim.fn.exists ':ClaudeCodeFocus' ~= 2 then
+            return
+          end
+          local ok, term_mod = pcall(require, 'claudecode.terminal')
+          if not ok then
+            return
+          end
+          local bufnr = term_mod.get_active_terminal_bufnr and term_mod.get_active_terminal_bufnr()
+          if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+            vim.g.claude_panel_open = false
+            return
+          end
+          local prev_win = vim.api.nvim_get_current_win()
+          vim.cmd 'ClaudeCodeFocus'
+          vim.schedule(function()
+            vim.cmd 'wincmd ='
+            if vim.api.nvim_win_is_valid(prev_win) then
+              vim.api.nvim_set_current_win(prev_win)
+            end
+          end)
+        end,
+      })
+    end,
+    keys = {
+      {
+        '<C-,>',
+        function()
+          vim.g.claude_panel_open = true
+          vim.cmd 'ClaudeCode --continue'
+          vim.schedule(function()
+            vim.cmd 'wincmd ='
+          end)
+        end,
+        desc = 'Claude Code',
+        mode = { 'n', 'x' },
+      },
+      { '<leader>a', nil, desc = '[A]I Claude Code' },
+      { '<leader>af', '<cmd>ClaudeCodeFocus<cr>', desc = '[A]I [F]ocus Claude' },
+      { '<leader>ar', '<cmd>ClaudeCode --resume<cr>', desc = '[A]I [R]esume Claude' },
+      { '<leader>aC', '<cmd>ClaudeCode --continue<cr>', desc = '[A]I [C]ontinue Claude' },
+      { '<leader>am', '<cmd>ClaudeCodeSelectModel<cr>', desc = '[A]I select [M]odel' },
+      { '<leader>aa', '<cmd>ClaudeCodeDiffAccept<cr>', desc = '[A]I [A]ccept diff' },
+      { '<leader>ad', '<cmd>ClaudeCodeDiffDeny<cr>', desc = '[A]I [D]eny diff' },
+    },
+  },
+  {
+    'kdheepak/lazygit.nvim',
+    cond = not vim.g.vscode,
+    cmd = { 'LazyGit', 'LazyGitConfig', 'LazyGitCurrentFile', 'LazyGitFilter', 'LazyGitFilterCurrentFile' },
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    keys = {
+      {
+        '<C-.>',
+        function()
+          for _, win in ipairs(vim.api.nvim_list_wins()) do
+            if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == 'lazygit' then
+              vim.api.nvim_win_close(win, true)
+              return
+            end
+          end
+          if vim.api.nvim_get_mode().mode == 't' then
+            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-\\><C-n>', true, false, true), 'n', false)
+            vim.schedule(function()
+              vim.cmd 'LazyGit'
+            end)
+          else
+            vim.cmd 'LazyGit'
+          end
+        end,
+        desc = 'LazyGit toggle',
+        mode = { 'n', 't' },
+      },
+    },
+  },
+  {
+    'rachartier/tiny-code-action.nvim',
+    cond = not vim.g.vscode,
+    dependencies = {
+      { 'nvim-lua/plenary.nvim' },
+      { 'nvim-telescope/telescope.nvim' },
+    },
+    event = 'LspAttach',
+    opts = {},
+    config = function()
+      vim.keymap.set('n', '<leader>ca', function()
+        require('tiny-code-action').code_action()
+      end, { noremap = true, silent = true })
+    end,
   },
 }

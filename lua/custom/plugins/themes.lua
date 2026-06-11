@@ -81,6 +81,14 @@ return {
     end,
   },
   {
+    'Mofiqul/dracula.nvim',
+    lazy = false,
+    priority = 1000,
+    config = function()
+      vim.cmd.colorscheme 'dracula'
+    end,
+  },
+  {
     'projekt0n/github-nvim-theme',
     name = 'github-theme',
     lazy = false, -- make sure we load this during startup if it is your main colorscheme
@@ -94,8 +102,7 @@ return {
           },
         },
       }
-
-      vim.cmd 'colorscheme github_light'
+      -- vim.cmd 'colorscheme github_light'
     end,
   },
 }

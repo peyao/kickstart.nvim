@@ -168,11 +168,31 @@ vim.opt.shiftwidth = 2
 vim.opt.expandtab = true
 vim.opt.cursorline = true
 vim.opt.autoread = true
+vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold', 'CursorHoldI' }, {
+  callback = function()
+    if vim.fn.mode() ~= 'c' then
+      vim.cmd 'checktime'
+    end
+  end,
+})
 vim.opt.scrolloff = 2
 vim.opt.showtabline = 2
 vim.opt.sessionoptions = 'curdir,folds,globals,help,tabpages,terminal,winsize' -- to save tab names for tabby.nvim
 vim.opt.mousescroll = 'ver:1,hor:1'
 vim.opt.mousemoveevent = true
+vim.opt.wrap = false
+vim.opt.sidescrolloff = 10
+
+-- vim.api.nvim_create_autocmd('BufWritePre', {
+--   pattern = '*.html', -- Adjust to match your Angular template files
+--   callback = function()
+--     if vim.bo.filetype == 'htmlangular' then
+--       vim.cmd '!prettier --parser angular --write %'
+--       vim.cmd 'edit!' -- Reload buffer to reflect changes
+--     end
+--   end,
+--   desc = 'Format htmlangular files with Prettier on save',
+-- })
 
 -- Automatically resize opened windows when terminal size changes
 -- List of events: https://neovim.io/doc/user/autocmd.html#_5.-events
@@ -290,6 +310,7 @@ require('lazy').setup({
   -- See `:help gitsigns` to understand what the configuration keys do
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
+    cond = not vim.g.vscode,
     opts = {
       signs = {
         add = { text = '┃' },
@@ -318,6 +339,7 @@ require('lazy').setup({
 
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
+    cond = not vim.g.vscode,
     event = 'VeryLazy',
     opts = {
       -- delay between pressing a key and opening which-key (milliseconds)
@@ -381,6 +403,7 @@ require('lazy').setup({
         { '<leader>f', group = '[F]ile' },
         { '<leader>G', group = '[G]it' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+        { '<leader>a', group = '[A]I Claude Code' },
       },
     },
   },
@@ -394,6 +417,7 @@ require('lazy').setup({
 
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
+    cond = not vim.g.vscode,
     event = 'VimEnter',
     branch = '0.1.x',
     dependencies = {
@@ -457,7 +481,7 @@ require('lazy').setup({
           },
         },
         defaults = {
-          winblend = 20,
+          winblend = 5,
           mappings = {
             i = {
               ['<C-s>'] = require('telescope.actions').cycle_previewers_next,
@@ -467,7 +491,7 @@ require('lazy').setup({
           file_ignore_patterns = { 'node_modules', 'yarn.lock', 'package-lock.json' },
           layout_config = {
             horizontal = {
-              width = 0.95,
+              width = 0.8,
               preview_width = 0.4,
             },
           },
@@ -512,19 +536,12 @@ require('lazy').setup({
       --   ':Telescope file_browser path=%:p:h select_buffer=true prompt_path=true<CR>',
       --   { desc = '[ ] Files In Current Directory' }
       -- )
-      vim.keymap.set('n', '<leader><leader>', function()
-        require('telescope').extensions.file_browser.file_browser {
-          path = '%:p:h',
-          select_buffer = true,
-          prompt_path = true,
-        }
-      end, { desc = '[ ] Files In Current Directory' })
+      vim.keymap.set('n', '<leader><leader>', '<cmd>Telescope oldfiles<cr>', { desc = '[ ] Old Files' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
         -- You can pass additional configuration to Telescope to change the theme, layout, etc.
         builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-          winblend = 30,
           previewer = true,
         })
       end, { desc = '[/] Fuzzily search in current buffer' })
@@ -543,13 +560,18 @@ require('lazy').setup({
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
 
+      vim.keymap.set('n', '<leader>su', function()
+        builtin.git_status(require('telescope.themes').get_ivy { previewer = true })
+      end, { desc = '[S]earch [U]ncommitted changes' })
+
       vim.keymap.set('n', '<leader>sc', function()
         -- layout options: get_ivy, get_dropdown, get_cursor
         -- previewer seems required for previewing colorscheme changes live
         require('telescope.builtin').colorscheme(require('telescope.themes').get_ivy { previewer = true })
       end, { desc = '[S]earch [C]olorschemes' })
 
-      vim.keymap.set('n', '<leader>b', ':exec (&bg == "light") ? "set bg=dark" : "set bg=light"<CR>', { desc = '[B]ackground Light/Dark Toggle' })
+      vim.keymap.set('n', '<leader>b', '<cmd>ClaudeCodeAdd %<cr>', { desc = 'Claude: add [B]uffer' })
+      vim.keymap.set('v', '<leader>b', '<cmd>ClaudeCodeSend<cr>', { desc = 'Claude: send selection' })
 
       vim.keymap.set('n', '<leader>ff', ':let @+=expand("%:t")<CR>', { desc = 'Yank buffer [F]ilename' })
       vim.keymap.set('n', '<leader>fa', ':let @+=expand("%:p")<CR>', { desc = 'Yank buffer [A]bsolute path' })
@@ -575,6 +597,7 @@ require('lazy').setup({
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
+    cond = not vim.g.vscode,
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
       -- Mason must be loaded before its dependents so we need to set it up here.
@@ -635,14 +658,32 @@ require('lazy').setup({
           -- Jump to the definition of the word under your cursor.
           --  This is where a variable was first declared, or where a function is defined, etc.
           --  To jump back, press <C-t>.
-          map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+          map('gd', function()
+            require('telescope.builtin').lsp_definitions {
+              jump_type = 'tab',
+              attach_mappings = function(_, tmap)
+                tmap('i', '<CR>', require('telescope.actions').select_tab)
+                tmap('n', '<CR>', require('telescope.actions').select_tab)
+                return true
+              end,
+            }
+          end, '[G]oto [D]efinition')
 
           -- Find references for the word under your cursor.
           map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
-          map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+          map('gI', function()
+            require('telescope.builtin').lsp_implementations {
+              jump_type = 'tab',
+              attach_mappings = function(_, tmap)
+                tmap('i', '<CR>', require('telescope.actions').select_tab)
+                tmap('n', '<CR>', require('telescope.actions').select_tab)
+                return true
+              end,
+            }
+          end, '[G]oto [I]mplementation')
 
           -- Jump to the type of the word under your cursor.
           --  Useful when you're not sure what type a variable is and you want to see
@@ -663,7 +704,8 @@ require('lazy').setup({
 
           -- Execute a code action, usually your cursor needs to be on top of an error
           -- or a suggestion from your LSP for this to activate.
-          map('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction', { 'n', 'x' })
+          -- NOTE: Overridden by tiny-code-action
+          -- map('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction', { 'n', 'x' })
 
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           --  For example, in C this would take you to the header.
@@ -688,28 +730,28 @@ require('lazy').setup({
           --
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
           local client = vim.lsp.get_client_by_id(event.data.client_id)
-          if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
-            local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
-            vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
-              buffer = event.buf,
-              group = highlight_augroup,
-              callback = vim.lsp.buf.document_highlight,
-            })
-
-            vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
-              buffer = event.buf,
-              group = highlight_augroup,
-              callback = vim.lsp.buf.clear_references,
-            })
-
-            vim.api.nvim_create_autocmd('LspDetach', {
-              group = vim.api.nvim_create_augroup('kickstart-lsp-detach', { clear = true }),
-              callback = function(event2)
-                vim.lsp.buf.clear_references()
-                vim.api.nvim_clear_autocmds { group = 'kickstart-lsp-highlight', buffer = event2.buf }
-              end,
-            })
-          end
+          -- if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
+          --   local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
+          --   vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
+          --     buffer = event.buf,
+          --     group = highlight_augroup,
+          --     callback = vim.lsp.buf.document_highlight,
+          --   })
+          --
+          --   vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
+          --     buffer = event.buf,
+          --     group = highlight_augroup,
+          --     callback = vim.lsp.buf.clear_references,
+          --   })
+          --
+          --   vim.api.nvim_create_autocmd('LspDetach', {
+          --     group = vim.api.nvim_create_augroup('kickstart-lsp-detach', { clear = true }),
+          --     callback = function(event2)
+          --       vim.lsp.buf.clear_references()
+          --       vim.api.nvim_clear_autocmds { group = 'kickstart-lsp-highlight', buffer = event2.buf }
+          --     end,
+          --   })
+          -- end
 
           -- The following code creates a keymap to toggle inlay hints in your
           -- code, if the language server you are using supports them
@@ -778,14 +820,28 @@ require('lazy').setup({
         -- Some languages (like typescript) have entire language plugins that can be useful:
         --    https://github.com/pmizio/typescript-tools.nvim
         --
-        -- But for many setups, the LSP (`tsserver`) will work just fine
-        ts_ls = {
-          filetypes = { 'javascript', 'typescript', 'typescriptreact', 'typescript.tsx' },
-        },
+        -- NOTE: Disabled ts_ls, using 'pmizio/typescript-tools.nvim'
+        -- ts_ls = {
+        --   filetypes = { 'javascript', 'typescript', 'typescriptreact', 'typescript.tsx' },
+        -- },
         html = { filetypes = { 'html', 'twig', 'hbs' } },
         cssls = { filetypes = { 'css', 'scss' } },
         angularls = {
           root_dir = require('lspconfig.util').root_pattern('angular.json', 'project.json'),
+          -- filetypes = { 'typescript', 'htmlangular' },
+          -- filetypes = { 'typescript' },
+          on_new_config = function(new_config, new_root_dir)
+            -- Use the project's own node_modules so the LS version matches Angular version
+            local probe = new_root_dir .. '/node_modules'
+            new_config.cmd = {
+              'ngserver',
+              '--stdio',
+              '--tsProbeLocations',
+              probe,
+              '--ngProbeLocations',
+              probe,
+            }
+          end,
         },
         lua_ls = {
           -- cmd = { ... },
@@ -842,6 +898,7 @@ require('lazy').setup({
 
   { -- Autoformat
     'stevearc/conform.nvim',
+    cond = not vim.g.vscode,
     event = { 'BufWritePre' },
     cmd = { 'ConformInfo' },
     keys = {
@@ -855,12 +912,12 @@ require('lazy').setup({
       },
     },
     opts = {
-      notify_on_error = false,
+      notify_on_error = true,
       format_on_save = function(bufnr)
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
+        local disable_filetypes = { c = true, cpp = true, htmlangular = true }
         if disable_filetypes[vim.bo[bufnr].filetype] then
           return nil
         else
@@ -870,23 +927,31 @@ require('lazy').setup({
           }
         end
       end,
+      formatters = {},
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        javascript = { 'prettierd', 'prettier', stop_after_first = true },
-        typescript = { 'prettierd', 'prettier', stop_after_first = true },
-        html = { 'prettierd', 'prettier', stop_after_first = true },
-        htmlangular = { 'prettierd', 'prettier', stop_after_first = true },
-        scss = { 'prettierd', 'prettier', stop_after_first = true },
+        -- javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        -- typescript = { 'prettierd', 'prettier', stop_after_first = true },
+        -- html = { 'prettierd', 'prettier', stop_after_first = true },
+        -- htmlangular = { 'prettierd', 'prettier', stop_after_first = true },
+        -- scss = { 'prettierd', 'prettier', stop_after_first = true },
+        javascript = { 'eslint_d', stop_after_first = true },
+        typescript = { 'eslint_d', stop_after_first = true },
+        -- html = { 'eslint_d', stop_after_first = true },
+        -- htmlangular = { 'prettier', stop_after_first = true },
+        -- NOTE: This is overridden with a "vim.api" setup to manually run prettier without conform.nvim which seems to mess things up
+        scss = { 'eslint_d', stop_after_first = true },
       },
     },
   },
 
   { -- Autocompletion
     'hrsh7th/nvim-cmp',
+    cond = not vim.g.vscode,
     event = 'InsertEnter',
     dependencies = {
       -- Snippet Engine & its associated nvim-cmp source
@@ -1032,6 +1097,7 @@ require('lazy').setup({
   -- Highlight todo, notes, etc in comments
   {
     'folke/todo-comments.nvim',
+    cond = not vim.g.vscode,
     event = 'VimEnter',
     dependencies = { 'nvim-lua/plenary.nvim' },
     opts = {
@@ -1044,6 +1110,7 @@ require('lazy').setup({
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
+    cond = not vim.g.vscode,
     config = function()
       -- Better Around/Inside textobjects
       --
@@ -1059,7 +1126,10 @@ require('lazy').setup({
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
-      require('mini.cursorword').setup()
+      if not vim.g.vscode then
+        require('mini.cursorword').setup()
+        vim.api.nvim_set_hl(0, 'MiniCursorword', { underline = true })
+      end
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
@@ -1082,6 +1152,7 @@ require('lazy').setup({
   },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
+    cond = not vim.g.vscode,
     build = ':TSUpdate',
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`

@@ -35,11 +35,10 @@ This is a personal Neovim configuration forked from [kickstart.nvim](https://git
 | `<leader>f` | File |
 | `<leader>G` | Git |
 | `<leader>h` | Git Hunk (n/v) |
-| `<leader>a` | AI Claude Code |
 
 ## Notable Keymaps (avoid conflicts)
 
-**Taken leader bindings**: `<leader>e`, `<leader>q`, `<leader>b`, `<leader>/`, `<leader><leader>`, `<leader>F`, `<leader>D`, `<leader>th`, `<leader>rn`, `<leader>ca`, `<leader>cc`, `<leader>cb`, `<leader>ct`, `<leader>cs`, `<leader>cj`, `<leader>ll`, `<leader>lL`, `<leader>ld`, `<leader>ff`, `<leader>fa`, `<leader>GH`, `<leader>GB`, `<leader>sm`, `<leader>su`, all `<leader>s*` telescope bindings, `<leader>af`, `<leader>ar`, `<leader>aC`, `<leader>am`, `<leader>aa`, `<leader>ad`.
+**Taken leader bindings**: `<leader>e`, `<leader>q`, `<leader>b`, `<leader>/`, `<leader><leader>`, `<leader>F`, `<leader>D`, `<leader>t`, `<leader>th`, `<leader>rn`, `<leader>ca`, `<leader>cc`, `<leader>cb`, `<leader>ct`, `<leader>cs`, `<leader>cj`, `<leader>ll`, `<leader>lL`, `<leader>ld`, `<leader>ff`, `<leader>fa`, `<leader>GH`, `<leader>GB`, `<leader>sm`, `<leader>su`, all `<leader>s*` telescope bindings, `<leader>a` (toggle Claude Code).
 
 **Alt bindings in use**: `<A-t/w/a/d/q/e/r>` (tabby tabs), `<A-m/n/p>` + `<A-S-m>` (grapple).
 
@@ -47,7 +46,6 @@ This is a personal Neovim configuration forked from [kickstart.nvim](https://git
 
 **Window nav**: `<C-h/j/k/l>` (focus), `<C-S-h/j/k/l>` (move window).
 
-**Other taken bindings**: `<C-,>` (Claude Code toggle), `<C-.>` (LazyGit toggle), `<C-/>` (NvimTree toggle).
 
 ## LSP / Formatting
 

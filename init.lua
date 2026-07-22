@@ -405,7 +405,6 @@ require('lazy').setup({
         { '<leader>f', group = '[F]ile' },
         { '<leader>G', group = '[G]it' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
-        { '<leader>a', group = '[A]I Claude Code' },
       },
     },
   },
@@ -484,6 +483,9 @@ require('lazy').setup({
         },
         defaults = {
           winblend = 5,
+          preview = {
+            treesitter = false, -- peyao: treesitter in previews causes noisy highlighter errors
+          },
           mappings = {
             i = {
               ['<C-s>'] = require('telescope.actions').cycle_previewers_next,
@@ -493,7 +495,7 @@ require('lazy').setup({
           file_ignore_patterns = { 'node_modules', 'yarn.lock', 'package-lock.json' },
           layout_config = {
             horizontal = {
-              width = 0.8,
+              width = 0.95,
               preview_width = 0.4,
             },
           },
@@ -519,6 +521,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
+      vim.keymap.set('n', '<D-S-f>', builtin.live_grep, { desc = '[S]earch by [G]rep' }) -- peyao
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>so', builtin.oldfiles, { desc = '[S]earch [O]ld Files' })
@@ -534,11 +537,38 @@ require('lazy').setup({
           end)
         end
       end, { desc = 'Open Git [B]lame in browser' })
-      -- vim.keymap.set('n', '<leader><leader>',
-      --   ':Telescope file_browser path=%:p:h select_buffer=true prompt_path=true<CR>',
-      --   { desc = '[ ] Files In Current Directory' }
-      -- )
-      vim.keymap.set('n', '<leader><leader>', '<cmd>Telescope oldfiles<cr>', { desc = '[ ] Old Files' })
+      local dracula_float_ns = vim.api.nvim_create_namespace 'FloatDracula'
+      local dracula_float_ns_built = false
+      local function get_dracula_float_ns()
+        if not dracula_float_ns_built then
+          local groups = require('dracula.groups').setup(require('dracula').configs())
+          for group, hl in pairs(groups) do
+            vim.api.nvim_set_hl(dracula_float_ns, group, hl)
+          end
+          dracula_float_ns_built = true
+        end
+        return dracula_float_ns
+      end
+
+      vim.keymap.set('n', '<leader><leader>', function()
+        local tree_view = require 'nvim-tree.view'
+        if tree_view.is_visible() then
+          tree_view.close()
+          return
+        end
+        -- left enabled while the float is open; view.resize() checks this flag
+        -- (e.g. when update_focused_file runs after opening a file) to skip resizing
+        -- the window back to the docked width, so it can't be reset right after open
+        require('nvim-tree.config').g.view.float.enable = true
+        require('nvim-tree.api').tree.open()
+        local winnr = tree_view.get_winnr()
+        if winnr then
+          vim.wo[winnr].winblend = 15
+          vim.api.nvim_win_set_hl_ns(winnr, get_dracula_float_ns())
+        end
+      end, { desc = '[ ] File Explorer (float)' })
+
+      vim.keymap.set('n', '<D-p>', builtin.find_files, { desc = 'Find files (Cmd+P)' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -575,8 +605,30 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>b', '<cmd>ClaudeCodeAdd %<cr>', { desc = 'Claude: add [B]uffer' })
       vim.keymap.set('v', '<leader>b', '<cmd>ClaudeCodeSend<cr>', { desc = 'Claude: send selection' })
 
-      vim.keymap.set('n', '<leader>ff', ':let @+=expand("%:t")<CR>', { desc = 'Yank buffer [F]ilename' })
-      vim.keymap.set('n', '<leader>fa', ':let @+=expand("%:p")<CR>', { desc = 'Yank buffer [A]bsolute path' })
+      vim.keymap.set('n', '<leader>ff', function()
+        local name = vim.fn.expand '%:t'
+        if name == '' then
+          name = vim.fn.expand '#:t'
+        end
+        if name == '' then
+          vim.notify('No filename to copy', vim.log.levels.WARN)
+          return
+        end
+        vim.fn.setreg('+', name)
+        vim.notify('Copied: ' .. name)
+      end, { desc = 'Yank buffer [F]ilename' })
+      vim.keymap.set('n', '<leader>fa', function()
+        local path = vim.fn.expand '%:p'
+        if path == '' then
+          path = vim.fn.expand '#:p'
+        end
+        if path == '' then
+          vim.notify('No path to copy', vim.log.levels.WARN)
+          return
+        end
+        vim.fn.setreg('+', path)
+        vim.notify('Copied: ' .. path)
+      end, { desc = 'Yank buffer [A]bsolute path' })
 
       vim.keymap.set('n', 'gp', '<cmd>lua require("goto-preview").goto_preview_definition()<CR>', { desc = 'Goto Preview' })
       vim.keymap.set('n', 'gP', '<cmd>lua require("goto-preview").close_all_win()<CR>', { desc = 'Goto Preview Close All' })
@@ -920,7 +972,7 @@ require('lazy').setup({
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true, htmlangular = true }
+        local disable_filetypes = { c = true, cpp = true }
         if disable_filetypes[vim.bo[bufnr].filetype] then
           return nil
         else
@@ -935,19 +987,11 @@ require('lazy').setup({
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
-        --
-        -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { 'prettierd', 'prettier', stop_after_first = true },
-        -- typescript = { 'prettierd', 'prettier', stop_after_first = true },
-        -- html = { 'prettierd', 'prettier', stop_after_first = true },
-        -- htmlangular = { 'prettierd', 'prettier', stop_after_first = true },
-        -- scss = { 'prettierd', 'prettier', stop_after_first = true },
-        javascript = { 'eslint_d', stop_after_first = true },
-        typescript = { 'eslint_d', stop_after_first = true },
-        -- html = { 'eslint_d', stop_after_first = true },
-        -- htmlangular = { 'prettier', stop_after_first = true },
-        -- NOTE: This is overridden with a "vim.api" setup to manually run prettier without conform.nvim which seems to mess things up
-        scss = { 'eslint_d', stop_after_first = true },
+        javascript = { 'prettier', stop_after_first = true },
+        typescript = { 'prettier', stop_after_first = true },
+        html = { 'prettier', stop_after_first = true },
+        htmlangular = { 'prettier', stop_after_first = true },
+        scss = { 'prettier', stop_after_first = true },
       },
     },
   },

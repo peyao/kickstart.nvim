@@ -83,9 +83,68 @@ return {
     cond = not vim.g.vscode,
     config = function()
       require('nvim-tree').setup {
+        on_attach = function(bufnr)
+          local api = require 'nvim-tree.api'
+          api.config.mappings.default_on_attach(bufnr)
+          vim.keymap.set('n', '<Esc>', api.tree.close, { buffer = bufnr, desc = 'Close', nowait = true })
+
+          -- when float, open the file behind it but keep focus (and the float) in place,
+          -- so multiple files can be opened into splits without leaving the tree
+          local function keep_float_focus(open_fn)
+            return function()
+              local tree_view = require 'nvim-tree.view'
+              local winnr = tree_view.get_winnr()
+              local was_float = winnr and vim.api.nvim_win_get_config(winnr).relative ~= ''
+              open_fn()
+              if was_float then
+                tree_view.focus()
+              end
+            end
+          end
+          vim.keymap.set('n', '<CR>', keep_float_focus(api.node.open.edit), { buffer = bufnr, desc = 'Open', nowait = true })
+          vim.keymap.set('n', 'o', keep_float_focus(api.node.open.edit), { buffer = bufnr, desc = 'Open', nowait = true })
+          vim.keymap.set('n', '<2-LeftMouse>', keep_float_focus(api.node.open.edit), { buffer = bufnr, desc = 'Open', nowait = true })
+          vim.keymap.set('n', '<C-v>', keep_float_focus(api.node.open.vertical), { buffer = bufnr, desc = 'Open: Vertical Split', nowait = true })
+          vim.keymap.set('n', '<C-x>', keep_float_focus(api.node.open.horizontal), { buffer = bufnr, desc = 'Open: Horizontal Split', nowait = true })
+
+          vim.keymap.set('n', '<Tab>', function()
+            local node = api.tree.get_node_under_cursor()
+            if not node or node.type ~= 'file' then
+              return
+            end
+            local buf = vim.fn.bufadd(node.absolute_path)
+            vim.fn.bufload(buf)
+            Snacks.win.new {
+              buf = buf,
+              width = 0.7,
+              height = 0.8,
+              border = 'rounded',
+              wo = { number = true, relativenumber = false, signcolumn = 'no' },
+              keys = { q = 'close', ['<Esc>'] = 'close' },
+            }
+          end, { buffer = bufnr, desc = 'Preview file', nowait = true })
+        end,
         view = {
           width = 60,
           side = 'right',
+          float = {
+            enable = false,
+            quit_on_focus_loss = true,
+            open_win_config = function()
+              local screen_w = vim.opt.columns:get()
+              local screen_h = vim.opt.lines:get()
+              local width = math.floor(screen_w * 0.4)
+              local height = math.floor(screen_h * 0.8)
+              return {
+                relative = 'editor',
+                border = 'rounded',
+                width = width,
+                height = height,
+                row = math.floor((screen_h - height) / 2),
+                col = math.floor((screen_w - width) / 2),
+              }
+            end,
+          },
         },
         update_focused_file = {
           enable = true,
@@ -106,7 +165,10 @@ return {
           },
         },
       }
-      vim.keymap.set('n', '<C-/>', function()
+      require('nvim-tree.api').events.subscribe(require('nvim-tree.api').events.Event.TreeClose, function()
+        require('nvim-tree.config').g.view.float.enable = false
+      end)
+      local nvim_tree_toggle = function()
         local api = require 'nvim-tree.api'
         if not api.tree.is_visible() then
           api.tree.open()
@@ -115,7 +177,8 @@ return {
         else
           api.tree.focus()
         end
-      end, { desc = 'File Tree smart toggle', silent = true })
+      end
+      vim.keymap.set('n', '<leader>t', nvim_tree_toggle, { desc = 'File Tree smart toggle', silent = true })
     end,
   }, -- add file directory explorer
   {
@@ -165,6 +228,7 @@ return {
       require('auto-session').setup {
         log_level = 'error',
         auto_session_suppress_dirs = nil,
+        use_git_branch = true,
         post_restore_cmds = { change_nvim_tree_dir, 'NvimTreeOpen' },
         pre_save_cmds = { 'NvimTreeClose' },
       }
@@ -462,58 +526,40 @@ return {
             if vim.api.nvim_win_is_valid(prev_win) then
               vim.api.nvim_set_current_win(prev_win)
             end
+            vim.cmd 'stopinsert'
           end)
         end,
       })
     end,
     keys = {
       {
-        '<C-,>',
+        '<leader>a',
         function()
-          vim.g.claude_panel_open = true
-          vim.cmd 'ClaudeCode --continue'
+          local term = require 'claudecode.terminal'
+          if not vim.g.claude_launched then
+            vim.g.claude_launched = true
+            vim.g.claude_panel_open = true
+            vim.cmd 'ClaudeCode --continue'
+          else
+            term.simple_toggle()
+            local bufnr = term.get_active_terminal_bufnr and term.get_active_terminal_bufnr()
+            local visible = false
+            if bufnr then
+              for _, win in ipairs(vim.api.nvim_list_wins()) do
+                if vim.api.nvim_win_get_buf(win) == bufnr then
+                  visible = true
+                  break
+                end
+              end
+            end
+            vim.g.claude_panel_open = visible
+          end
           vim.schedule(function()
             vim.cmd 'wincmd ='
           end)
         end,
         desc = 'Claude Code',
         mode = { 'n', 'x' },
-      },
-      { '<leader>a', nil, desc = '[A]I Claude Code' },
-      { '<leader>af', '<cmd>ClaudeCodeFocus<cr>', desc = '[A]I [F]ocus Claude' },
-      { '<leader>ar', '<cmd>ClaudeCode --resume<cr>', desc = '[A]I [R]esume Claude' },
-      { '<leader>aC', '<cmd>ClaudeCode --continue<cr>', desc = '[A]I [C]ontinue Claude' },
-      { '<leader>am', '<cmd>ClaudeCodeSelectModel<cr>', desc = '[A]I select [M]odel' },
-      { '<leader>aa', '<cmd>ClaudeCodeDiffAccept<cr>', desc = '[A]I [A]ccept diff' },
-      { '<leader>ad', '<cmd>ClaudeCodeDiffDeny<cr>', desc = '[A]I [D]eny diff' },
-    },
-  },
-  {
-    'kdheepak/lazygit.nvim',
-    cond = not vim.g.vscode,
-    cmd = { 'LazyGit', 'LazyGitConfig', 'LazyGitCurrentFile', 'LazyGitFilter', 'LazyGitFilterCurrentFile' },
-    dependencies = { 'nvim-lua/plenary.nvim' },
-    keys = {
-      {
-        '<C-.>',
-        function()
-          for _, win in ipairs(vim.api.nvim_list_wins()) do
-            if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == 'lazygit' then
-              vim.api.nvim_win_close(win, true)
-              return
-            end
-          end
-          if vim.api.nvim_get_mode().mode == 't' then
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-\\><C-n>', true, false, true), 'n', false)
-            vim.schedule(function()
-              vim.cmd 'LazyGit'
-            end)
-          else
-            vim.cmd 'LazyGit'
-          end
-        end,
-        desc = 'LazyGit toggle',
-        mode = { 'n', 't' },
       },
     },
   },

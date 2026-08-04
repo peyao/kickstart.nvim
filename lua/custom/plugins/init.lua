@@ -88,8 +88,7 @@ return {
           api.config.mappings.default_on_attach(bufnr)
           vim.keymap.set('n', '<Esc>', api.tree.close, { buffer = bufnr, desc = 'Close', nowait = true })
 
-          -- when float, open the file behind it but keep focus (and the float) in place,
-          -- so multiple files can be opened into splits without leaving the tree
+          -- when float, close the tree after opening a file instead of leaving it open
           local function keep_float_focus(open_fn)
             return function()
               local tree_view = require 'nvim-tree.view'
@@ -97,7 +96,7 @@ return {
               local was_float = winnr and vim.api.nvim_win_get_config(winnr).relative ~= ''
               open_fn()
               if was_float then
-                tree_view.focus()
+                tree_view.close()
               end
             end
           end

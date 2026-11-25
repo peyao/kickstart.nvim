@@ -728,6 +728,9 @@ do
     end,
   })
 
+  -- Angular templates are not detected as `htmlangular` by default, so angularls would skip them.
+  vim.filetype.add { pattern = { ['.*%.component%.html'] = 'htmlangular' } }
+
   -- Enable the following language servers
   --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
   --  See `:help lsp-config` for information about keys and how to configure
@@ -745,6 +748,22 @@ do
     -- rust_analyzer = {},
 
     stylua = {}, -- Used to format Lua code
+    prettier = {}, -- Used to format TS/JS/HTML/SCSS (conform.nvim)
+
+    -- Angular / web
+    ts_ls = {},
+    html = {},
+    cssls = {},
+    eslint = {},
+    angularls = {
+      filetypes = { 'typescript', 'html', 'htmlangular' },
+      root_markers = { 'angular.json', 'project.json', 'nx.json' },
+      -- Probe the project's node_modules so the server matches the project's Angular version.
+      cmd = function(dispatchers, config)
+        local probe = (config.root_dir or vim.uv.cwd()) .. '/node_modules'
+        return vim.lsp.rpc.start({ 'ngserver', '--stdio', '--tsProbeLocations', probe, '--ngProbeLocations', probe }, dispatchers)
+      end,
+    },
 
     -- Special Lua Config, as recommended by neovim help docs
     lua_ls = {
@@ -826,8 +845,12 @@ do
     format_on_save = function(bufnr)
       -- You can specify filetypes to autoformat on save here:
       local enabled_filetypes = {
-        -- lua = true,
-        -- python = true,
+        typescript = true,
+        javascript = true,
+        html = true,
+        htmlangular = true,
+        scss = true,
+        css = true,
       }
       if enabled_filetypes[vim.bo[bufnr].filetype] then
         return { timeout_ms = 500 }
@@ -846,6 +869,12 @@ do
       --
       -- You can use 'stop_after_first' to run the first available formatter from the list
       -- javascript = { "prettierd", "prettier", stop_after_first = true },
+      typescript = { 'prettier' },
+      javascript = { 'prettier' },
+      html = { 'prettier' },
+      htmlangular = { 'prettier' },
+      scss = { 'prettier' },
+      css = { 'prettier' },
     },
   }
 
@@ -948,7 +977,10 @@ do
   vim.pack.add { { src = gh 'nvim-treesitter/nvim-treesitter', version = 'main' } }
 
   -- Ensure basic parsers are installed
-  local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
+  local parsers = {
+    'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc',
+    'typescript', 'javascript', 'angular', 'scss', 'css', 'json',
+  }
   require('nvim-treesitter').install(parsers)
 
   ---@param buf integer
@@ -1018,7 +1050,7 @@ do
   -- require 'kickstart.plugins.indent_line'
   -- require 'kickstart.plugins.lint'
   -- require 'kickstart.plugins.autopairs'
-  -- require 'kickstart.plugins.neo-tree'
+  require 'kickstart.plugins.neo-tree'
 
   -- NOTE: You can add your own plugins, configuration, etc. in `lua/custom/plugins/*.lua`.
   --

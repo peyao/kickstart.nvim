@@ -7,13 +7,14 @@ vim.pack.add {
   'https://github.com/MunifTanjim/nui.nvim',
 }
 
-vim.keymap.set('n', '\\', '<Cmd>Neotree reveal<CR>', { desc = 'NeoTree reveal', silent = true })
+vim.keymap.set('n', '<leader>t', '<Cmd>Neotree toggle reveal<CR>', { desc = '[T]oggle NeoTree', silent = true })
 
 require('neo-tree').setup {
   filesystem = {
+    follow_current_file = { enabled = true },
     window = {
       mappings = {
-        ['\\'] = 'close_window',
+        ['<leader>t'] = 'close_window',
       },
     },
   },
